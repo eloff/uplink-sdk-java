@@ -166,24 +166,8 @@ Contract creation requires your private key, account address and script.
 
 ```java
 
-String fromAddress = yourAccountAddress
-String script = "global int x = 0 ;\n" +
-"\n" +
-"transition initial -> get;\n" +
-"transition get -> terminal;\n" +
-"\n" +
-"@get\n" +
-"getX () {\n" +
-"  terminate(\"Now I die.\");\n" +
-"  return x;\n" +
-"}\n" +
-"\n" +
-"@initial\n" +
-"setX (int y) {\n" +
-"  x = 42;\n" +
-"  transitionTo(:get);\n" +
-"  return void;\n" +
-"}";
+String fromAddress = yourAccountAddress;
+String script = "<< insert contract here >>";
 
 Response newContract = uplink.CreateContract(privateKey, fromAddress, script);
 String contractAddress = newContract.getTag();
