@@ -6,7 +6,7 @@
 Java SDK
 ========
 
-[![CircleCI](https://circleci.com/gh/adjoint-io/uplink-sdk-java.svg?style=svg&circle-token=e1a09791a38641c524c1104c6c7758584a51577e)](https://circleci.com/gh/adjoint-io/uplink-sdk-java)
+[![CircleCI](https://circleci.com/gh/adjoint-io/uplink-sdk-java/tree/master.svg?style=svg&circle-token=a0e451f3561d9b51f1802567716d4404930c2c4c)](https://circleci.com/gh/adjoint-io/uplink-sdk-java/tree/master)
 
 Installation
 ------------
