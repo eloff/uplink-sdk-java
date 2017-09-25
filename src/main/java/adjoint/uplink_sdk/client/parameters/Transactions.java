@@ -1,0 +1,107 @@
+/*
+ * Copyright 2017 Adjoint Inc..
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package adjoint.uplink_sdk.client.parameters;
+
+
+/**
+ *
+ * @author Adjoint Inc.
+ */
+public class Transactions {
+  private Long timestamp;
+  private String signature;
+  private String to;
+  private String origin;
+  private Type header;
+
+  public Transactions(Long timestamp, String signature, String fromAddr, String toAddr, Type header){
+      this.timestamp = timestamp;
+      this.signature = signature;
+      this.origin = fromAddr;
+      this.to = toAddr;
+      this.header = header;
+    }
+
+  /**
+   * @return the timestamp
+   */
+  public Long getTimestamp() {
+    return timestamp;
+  }
+
+  /**
+   * @param timestamp the timestamp to set
+   */
+  public void setTimestamp(Long timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  /**
+   * @return the signature
+   */
+  public String getSignature() {
+    return signature;
+  }
+
+  /**
+   * @param signature the signature to set
+   */
+  public void setSignature(String signature) {
+    this.signature = signature;
+  }
+
+  /**
+   * @return the to
+   */
+  public String getTo() {
+    return to;
+  }
+
+  /**
+   * @param to the to to set
+   */
+  public void setTo(String to) {
+    this.to = to;
+  }
+
+  /**
+   * @return the origin
+   */
+  public String getOrigin() {
+    return origin;
+  }
+
+  /**
+   * @param origin the origin to set
+   */
+  public void setOrigin(String origin) {
+    this.origin = origin;
+  }
+
+  /**
+   * @return the header
+   */
+  public Type getHeader() {
+    return header;
+  }
+
+  /**
+   * @param header the header to set
+   */
+  public void setHeader(Type header) {
+    this.header = header;
+  }
+}

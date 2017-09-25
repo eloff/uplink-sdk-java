@@ -1,0 +1,11 @@
+machine:
+  java:
+    version: openjdk8
+
+dependencies:
+  override:
+    - mvn install
+
+test:
+  override:
+    - mvn install
