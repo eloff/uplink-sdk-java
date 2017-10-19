@@ -68,7 +68,7 @@ public class YourProject{
         // protocol https:// if ssl/tls,
         // localhost if you're running a local instance of Uplink,
         // and the port (8545) to connect on.
-        UplinkSDK uplink = new UplinkSDK)("http://", "localhost", "8545")
+        UplinkSDK uplink = new UplinkSDK("http://", "localhost", "8545")
     }
 }
 ```
@@ -183,7 +183,7 @@ Documentation
 -------------
 
 To learn more about the SDK please visit the
-[documentation](https://www.adjoint.io/matrix/docs/sdks.html)
+[documentation](https://www.adjoint.io/docs/sdks.html)
 
 License
 -------
