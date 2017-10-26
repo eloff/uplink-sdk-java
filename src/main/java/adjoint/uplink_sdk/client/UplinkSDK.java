@@ -643,7 +643,7 @@ public class UplinkSDK {
           argsList.add(msgArg);
           int vlen = value.length();
           stream.writeByte(FCLEnum.VMSG.getValue());
-          stream.writeLong(vlen);
+          stream.writeShort(vlen);
           stream.writeBytes(value);
         } catch (IOException ex) {
           Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);

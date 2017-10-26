@@ -68,7 +68,7 @@ public class YourProject{
         // protocol https:// if ssl/tls,
         // localhost if you're running a local instance of Uplink,
         // and the port (8545) to connect on.
-        UplinkSDK uplink = new UplinkSDK("http://", "localhost", "8545")
+        UplinkSDK uplink = new UplinkSDK)("http://", "localhost", "8545")
     }
 }
 ```
@@ -166,8 +166,24 @@ Contract creation requires your private key, account address and script.
 
 ```java
 
-String fromAddress = yourAccountAddress;
-String script = "<< insert contract here >>";
+String fromAddress = yourAccountAddress
+String script = "global int x = 0 ;\n" +
+"\n" +
+"transition initial -> get;\n" +
+"transition get -> terminal;\n" +
+"\n" +
+"@get\n" +
+"getX () {\n" +
+"  terminate(\"Now I die.\");\n" +
+"  return x;\n" +
+"}\n" +
+"\n" +
+"@initial\n" +
+"setX (int y) {\n" +
+"  x = 42;\n" +
+"  transitionTo(:get);\n" +
+"  return void;\n" +
+"}";
 
 Response newContract = uplink.CreateContract(privateKey, fromAddress, script);
 String contractAddress = newContract.getTag();
@@ -183,7 +199,7 @@ Documentation
 -------------
 
 To learn more about the SDK please visit the
-[documentation](https://www.adjoint.io/docs/sdks.html)
+[documentation](https://www.adjoint.io/matrix/docs/sdks.html)
 
 License
 -------
