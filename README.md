@@ -199,7 +199,7 @@ Documentation
 -------------
 
 To learn more about the SDK please visit the
-[documentation](https://www.adjoint.io/matrix/docs/sdks.html)
+[documentation](https://www.adjoint.io/docs/sdks.html)
 
 License
 -------
