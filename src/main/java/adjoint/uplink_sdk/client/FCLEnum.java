@@ -22,16 +22,17 @@ package adjoint.uplink_sdk.client;
 public enum FCLEnum {
     VINT(0, "VInt", "int"),
     VFLOAT(2, "VFloat", "float"),
-    VBOOL(3, "VBool", "bool"),
-    VACCOUNT(5, "VAccount", "account"),
-    VASSET(6, "VAsset", "asset"),
-    VCONTRACT(7, "VContract", "contract"),
-    VMSG(8, "VMsg", "msg"),
-    VSIG(9, "VSig", "sig"),
-    VVOID(10, "VVoid", "void"),
-    VDATE(11, "VDate", "date"),
-    VSTATE(12, "VState","state"),
-    VUNDEFINED(13, "VUndefined","undefined");
+    VBOOL(4, "VBool", "bool"),
+    VADDRESS(5, "VAddress", "address"),
+    VACCOUNT(6, "VAccount", "account"),
+    VASSET(7, "VAsset", "asset"),
+    VCONTRACT(8, "VContract", "contract"),
+    VMSG(9, "VMsg", "msg"),
+    VSIG(10, "VSig", "sig"),
+    VVOID(11, "VVoid", "void"),
+    VDATETIME(12, "VDateTime", "datetime"),
+    VTIMEDELTA(13,"VTimeDelta", "timedelta"),
+    VUNDEFINED(15, "VUndefined","undefined");
 
     private final Integer vCode;
     private final String vName;
