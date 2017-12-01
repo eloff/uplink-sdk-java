@@ -16,24 +16,19 @@
 package adjoint.uplink_sdk.client;
 
 /**
- *
  * @author Adjoint Inc.
  */
 
 public enum ResponseEnum {
-    RPC_RESP("RPCResp"),
-    RPC_RESP_OK("RPCRespOK"),
-    RPC_RESP_ERROR("RPCRespError");
+  RPC_RESP("RPCResp"),
+  RPC_RESP_OK("RPCRespOK"),
+  RPC_RESP_ERROR("RPCRespError");
 
 
-    private final String name;
+  public final String name;
 
-    private ResponseEnum(String name) {
-        this.name = name;
-    };
-
-    public String getName(){
-      return this.name;
-    };
+  ResponseEnum(String name) {
+    this.name = name;
+  }
 
 }

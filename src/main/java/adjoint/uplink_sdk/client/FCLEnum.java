@@ -15,43 +15,38 @@
  */
 package adjoint.uplink_sdk.client;
 
+import java.io.*;
+
 /**
- *
  * @author Adjoint Inc.
  */
-public enum FCLEnum {
-    VINT(0, "VInt", "int"),
-    VFLOAT(2, "VFloat", "float"),
-    VBOOL(4, "VBool", "bool"),
-    VADDRESS(5, "VAddress", "address"),
-    VACCOUNT(6, "VAccount", "account"),
-    VASSET(7, "VAsset", "asset"),
-    VCONTRACT(8, "VContract", "contract"),
-    VMSG(9, "VMsg", "msg"),
-    VSIG(10, "VSig", "sig"),
-    VVOID(11, "VVoid", "void"),
-    VDATETIME(12, "VDateTime", "datetime"),
-    VTIMEDELTA(13,"VTimeDelta", "timedelta"),
-    VUNDEFINED(15, "VUndefined","undefined");
+public enum FCLEnum implements WriteBinary {
+  VINT(0, "VInt", "int"),
+  VFLOAT(2, "VFloat", "float"),
+  VBOOL(4, "VBool", "bool"),
+  VADDRESS(5, "VAddress", "address"),
+  VACCOUNT(6, "VAccount", "account"),
+  VASSET(7, "VAsset", "asset"),
+  VCONTRACT(8, "VContract", "contract"),
+  VMSG(9, "VMsg", "msg"),
+  VSIG(10, "VSig", "sig"),
+  VVOID(11, "VVoid", "void"),
+  VDATETIME(12, "VDateTime", "datetime"),
+  VTIMEDELTA(13, "VTimeDelta", "timedelta"),
+  VUNDEFINED(15, "VUndefined", "undefined");
 
-    private final Integer vCode;
-    private final String vName;
-    private final String human;
+  public final Integer value;
+  public final String name;
+  public final String human;
 
-    private FCLEnum(Integer vCode, String vName, String human) {
-        this.vCode =  vCode;
-        this.vName = vName;
-        this.human = human;
-    };
+  FCLEnum(Integer value, String name, String human) {
+    this.value = value;
+    this.name = name;
+    this.human = human;
+  }
 
-    public Integer getValue() {
-      return this.vCode;
-    };
+  public void writeBinary(DataOutputStream out) throws IOException {
+    out.writeByte(value);
+  }
 
-    public String getName(){
-      return this.vName;
-    };
-    public String getHuman(){
-      return this.human;
-    }
 }

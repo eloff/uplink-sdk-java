@@ -16,6 +16,7 @@
 
 import static adjoint.uplink_sdk.client.Crypto.DeriveAccountAddress;
 import static adjoint.uplink_sdk.client.Crypto.GenerateKeys;
+
 import adjoint.uplink_sdk.client.Response;
 import adjoint.uplink_sdk.client.ResponseOkay;
 import adjoint.uplink_sdk.client.UplinkSDK;
@@ -25,6 +26,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.BlocksWrapper;
 import adjoint.uplink_sdk.client.parameters.wrappers.ContractsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.PeersWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -35,21 +37,22 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+
+import java.util.*;
+
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**
- *
  * @author Adjoint Inc.
  */
 public class Tests {
   String unsecure = "http://";
   UplinkSDK uplink = new UplinkSDK(unsecure, "localhost", "8545");
-
+  String testAddr = "fwBVDsVh8SYQy98CzYpNPcbyTRczVUZ96HszhNRB8Ve";
   KeyPair pair;
   PrivateKey privateKey;
   PublicKey publicKey;
@@ -66,170 +69,280 @@ public class Tests {
 
   // querying
   @Test
-  public void TestGetBlocks(){
-    Response blocks = uplink.GetBlocks();
-    assertTrue("getting blocks should return a valid response", blocks.getClass() == BlocksWrapper.class);
+  public void TestGetBlocks() {
+    Response blocks = uplink.getBlocks();
+    assertEquals(BlocksWrapper.class, blocks.getClass());
   }
 
   @Test
-  public void TestGetPeers(){
-    Response peers = uplink.GetPeers();
-    assertTrue("getting peers should return a valid response", peers.getClass() == PeersWrap.class);
-  }
-  @Test
-  public void TestGetTransactions(){
-    Response Txs = uplink.GetTransactions(0);
-    assertTrue("getting transaction should return a valid response", Txs.getClass() == TransactionsWrap.class);
+  public void TestGetPeers() {
+    Response peers = uplink.getPeers();
+    assertEquals(PeersWrap.class, peers.getClass());
   }
 
   @Test
-  public void TestGetAssets(){
-    Response assets = uplink.GetAssets();
-    assertTrue("getting assets should return a valid response", assets.getClass() == AssetWrap.class);
+  public void TestGetTransactions() {
+    Response txs = uplink.getTransactions(0);
+    assertEquals(TransactionsWrap.class, txs.getClass());
   }
 
   @Test
-  public void TestGetAccounts(){
-    Response accounts = uplink.GetAccounts();
-    assertTrue("getting accounts should return a valid response", accounts.getClass() == AccountsWrap.class);
+  public void TestGetAssets() {
+    Response assets = uplink.getAssets();
+    assertEquals(AssetWrap.class, assets.getClass());
   }
 
   @Test
-  public void TestGetContracts(){
-    Response contracts = uplink.GetContracts();
-    assertTrue("getting contracts should return a valid responsee", contracts.getClass() == ContractsWrap.class);
+  public void TestGetAccounts() {
+    Response accounts = uplink.getAccounts();
+    assertEquals(AccountsWrap.class, accounts.getClass());
+  }
+
+  @Test
+  public void TestGetContracts() {
+    Response contracts = uplink.getContracts();
+    assertEquals(ContractsWrap.class, contracts.getClass());
   }
 
   // Creation
   @Test
-  public void TestCreateAccount() throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException{
-    SortedMap meta  = new TreeMap();
+  public void TestCreateAccount() throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
+    SortedMap<String, String> meta = new TreeMap<>();
     meta.put("foo", "bar");
     meta.put("shake", "bake");
-    meta.put("a","z");
+    meta.put("a", "z");
     String fromAddress = null;
     String timezone = "EST";
 
-    Response account = uplink.CreateAccount(timezone, meta, this.privateKey, this.publicKey, fromAddress);
-    assertTrue("Creating account should return a valid response", account.getClass() == ResponseOkay.class);
+    Response account = uplink.createAccount(timezone, meta, this.privateKey, this.publicKey, fromAddress);
+
+    assertEquals(ResponseOkay.class, account.getClass());
+
   }
 
   @Test
-  public void TestCreateAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, InterruptedException, InvalidAlgorithmParameterException{
+  public void TestCreateAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, InterruptedException, InvalidAlgorithmParameterException {
+    int supply = 100;
+    Integer precision = null;
+
+    SortedMap meta = new TreeMap();
+    meta.put("foo", "bar");
+    String fromAddress = null;
+    String timezone = "EST";
+
+    PrivateKey privateKey = this.pair.getPrivate();
+    PublicKey publicKey = this.pair.getPublic();
+    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
+
+    Thread.sleep(5000);
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+
+    assertEquals(Response.class, asset.getClass());
+  }
+
+  @Test
+  public void TestCirculateAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, InterruptedException, InvalidAlgorithmParameterException {
+    int supply = 100;
+    Integer precision = 0;
+
+    SortedMap meta = new TreeMap();
+    meta.put("foo", "bar");
+    String fromAddress = null;
+    String timezone = "EST";
+
+    PrivateKey privateKey = this.pair.getPrivate();
+    PublicKey publicKey = this.pair.getPublic();
+    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
+    Thread.sleep(4000);
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+    assetAddress = asset.tag;
+    Thread.sleep(4000);
+    int amount = 10;
+    Response circulated = uplink.circulateAsset(privateKey, accountAddress, assetAddress, amount);
+    assertEquals(ResponseOkay.class, circulated.getClass());
+  }
+
+  @Test
+  public void TestCreateContract() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InterruptedException, InvalidAlgorithmParameterException {
+    String Script = "global int x = 0 ;\n" +
+        "\n" +
+        "transition initial -> get;\n" +
+        "transition get -> terminal;\n" +
+        "\n" +
+        "@get\n" +
+        "getX () {\n" +
+        "  terminate(\"Now I die.\");\n" +
+        "  return x;\n" +
+        "}\n" +
+        "\n" +
+        "@initial\n" +
+        "setX (int y) {\n" +
+        "  x = 42;\n" +
+        "  transitionTo(:get);\n" +
+        "  return void;\n" +
+        "}";
+
+    SortedMap<String, String> meta = new TreeMap<String, String>();
+    meta.put("foo", "bar");
+    String fromAddress = null;
+    String timezone = "EST";
+
+    PrivateKey privateKey = this.pair.getPrivate();
+    PublicKey publicKey = this.pair.getPublic();
+    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
+
+    Thread.sleep(10000);
+    Response contract = uplink.createContract(privateKey, accountAddress, Script);
+    contractAddress = contract.tag;
+    assertEquals(Response.class, contract.getClass());
+  }
+
+  @Test
+  public void TestTransferAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, FileNotFoundException, InvalidKeySpecException, InterruptedException, InvalidAlgorithmParameterException {
+    int balance = 1;
+    SortedMap meta = new TreeMap();
+    meta.put("foo", "bar");
+    String fromAddress = null;
+    String timezone = "EST";
+
+    KeyPair pair2 = GenerateKeys();
+    PrivateKey privKey = pair2.getPrivate();
+    PublicKey pubKey = pair2.getPublic();
+    String accountAddressTO = DeriveAccountAddress(this.publicKey);
+    uplink.createAccount(timezone, meta, privKey, pubKey, fromAddress);
+
+    PrivateKey privateKey = this.pair.getPrivate();
+    PublicKey publicKey = this.pair.getPublic();
+    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, accountAddressTO);
+    Thread.sleep(5000);
     int supply = 3;
-    short precision = 0;
-
-    SortedMap meta  = new TreeMap();
-    meta.put("foo", "bar");
-    String fromAddress = null;
-    String timezone = "EST";
-
-    KeyPair pair = GenerateKeys();
-    PrivateKey privateKey = this.pair.getPrivate();
-    PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.CreateAccount(timezone, meta, privateKey, publicKey, fromAddress);
+    Integer precision = 0;
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+    assetAddress = asset.tag;
 
     Thread.sleep(5000);
-    Response asset = uplink.CreateAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
-    assetAddress = asset.getTag();
-
-    assertTrue("Creating asset should return a valid response", asset.getClass() == Response.class);
-  }
-
-  @Test
-  public void TestCreateContract() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InterruptedException, InvalidAlgorithmParameterException{
-      String Script = "global int x = 0 ;\n" +
-"\n" +
-"transition initial -> get;\n" +
-"transition get -> terminal;\n" +
-"\n" +
-"@get\n" +
-"getX () {\n" +
-"  terminate(\"Now I die.\");\n" +
-"  return x;\n" +
-"}\n" +
-"\n" +
-"@initial\n" +
-"setX (int y) {\n" +
-"  x = 42;\n" +
-"  transitionTo(:get);\n" +
-"  return void;\n" +
-"}";
-
-    SortedMap meta  = new TreeMap();
-    meta.put("foo", "bar");
-    String fromAddress = null;
-    String timezone = "EST";
-
-    PrivateKey privateKey = this.pair.getPrivate();
-    PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.CreateAccount(timezone, meta, privateKey, publicKey, fromAddress);
-
-    Thread.sleep(5000);
-    Response contract = uplink.CreateContract(privateKey, accountAddress, Script);
-    contractAddress = contract.getTag();
-    assertTrue("Creating contract should return a valid response", contract.getClass() == Response.class);
-  }
-
-  @Test
-  public void TestTransferAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, FileNotFoundException, InvalidKeySpecException, InterruptedException, InvalidAlgorithmParameterException{
-   int balance = 1;
-    SortedMap meta  = new TreeMap();
-    meta.put("foo", "bar");
-    String fromAddress = null;
-    String timezone = "EST";
-    PrivateKey privateKey = this.pair.getPrivate();
-    PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.CreateAccount(timezone, meta, privateKey, publicKey, fromAddress);
-    Thread.sleep(5000);
-    int supply = 3;
-    short precision = 0;
-    Response asset = uplink.CreateAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
-    assetAddress = asset.getTag();
-
-    Thread.sleep(5000);
-    Response TransferAsset = uplink.TransferAsset(accountAddress, assetAddress, accountAddress, balance, privateKey);
+    Response TransferAsset = uplink.transferAsset(accountAddress, assetAddress, accountAddressTO, balance, privateKey);
     assertTrue("Transferring asset should return a valid response", TransferAsset.getClass() == ResponseOkay.class);
   }
 
   @Test
-  public void TestCallContract() throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, InterruptedException, InvalidAlgorithmParameterException{
-    String contractMethod = "setX";
-    Map arguments  = new HashMap();
-    arguments.put("int", "12");
-          String Script = "global int x = 0 ;\n" +
-"\n" +
-"transition initial -> get;\n" +
-"transition get -> terminal;\n" +
-"\n" +
-"@get\n" +
-"getX () {\n" +
-"  terminate(\"Now I die.\");\n" +
-"  return x;\n" +
-"}\n" +
-"\n" +
-"@initial\n" +
-"setX (int y) {\n" +
-"  x = 42;\n" +
-"  transitionTo(:get);\n" +
-"  return void;\n" +
-"}";
+  public void TestCallContract() throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, InterruptedException, InvalidAlgorithmParameterException {
+    String Script = "transition initial -> end;\n" +
+        "transition end -> terminal;\n" +
+        "@initial\n" +
+        "fn_int(int a) {\n" +
+        "  return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_float(float b) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_bool(bool x) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_msg(msg c) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_account(account a) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_asset(asset a) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_contract(contract e) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_datetime(datetime e) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_void(void a) {\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "never_called(void a) {\n" +
+        "    transitionTo(:end);\n" +
+        "    return void;\n" +
+        "}\n" +
+        "@end\n" +
+        "end() {\n" +
+        "  if (sender() == deployer()) {\n" +
+        "    terminate(\"This is the end\");\n" +
+        "  };\n" +
+        "}";
 
-    SortedMap meta  = new TreeMap();
+    SortedMap<String, String> meta = new TreeMap<String, String>();
     meta.put("foo", "bar");
     String fromAddress = null;
     String timezone = "EST";
 
     PrivateKey privateKey = this.pair.getPrivate();
     PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.CreateAccount(timezone, meta, privateKey, publicKey, fromAddress);
+    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
 
     Thread.sleep(5000);
-    Response contract = uplink.CreateContract(privateKey, accountAddress, Script);
+    Response contract = uplink.createContract(privateKey, accountAddress, Script);
     Thread.sleep(5000);
-    contractAddress = contract.getTag();
+    contractAddress = contract.tag;
+    List<AbstractMap.SimpleEntry<String, HashMap<String, String>>> args = new ArrayList<>();
 
-    Response called = uplink.CallContract(privateKey, accountAddress, contractAddress, contractMethod, arguments);
-    assertTrue("Calling contact method should return a valid response", called.getClass() == ResponseOkay.class);
-}
+    args.add(new AbstractMap.SimpleEntry<>("fn_int", new HashMap<String, String>() {
+      {
+        put("int", "12");
+      }
+    }));
+
+    args.add(new AbstractMap.SimpleEntry<>("fn_float", new HashMap<String, String>() {
+      {
+        put("float", "12.2");
+      }
+    }));
+
+    args.add(new AbstractMap.SimpleEntry<>("fn_bool", new HashMap<String, String>() {
+      {
+        put("bool", "True");
+      }
+    }));
+
+
+    args.add(new AbstractMap.SimpleEntry<>("fn_msg", new HashMap<String, String>() {
+      {
+        put("msg", "Hello World");
+      }
+    }));
+
+    args.add(new AbstractMap.SimpleEntry<>("fn_account", new HashMap<String, String>() {
+      {
+        put("account", testAddr);
+      }
+    }));
+    args.add(new AbstractMap.SimpleEntry<>("fn_asset", new HashMap<String, String>() {
+      {
+        put("asset", testAddr);
+      }
+    }));
+    args.add(new AbstractMap.SimpleEntry<>("fn_contract", new HashMap<String, String>() {
+      {
+        put("contract", testAddr);
+      }
+    }));
+    args.add(new AbstractMap.SimpleEntry<>("fn_datetime", new HashMap<String, String>() {
+        {
+        put("datetime", "2017-11-29T16:50:40+00:00");
+      }
+    }));
+
+
+    for (AbstractMap.SimpleEntry<String, HashMap<String, String>> arg : args) {
+      Response called = uplink.callContract(privateKey, accountAddress, contractAddress, arg.getKey(), arg.getValue());
+      assertEquals(ResponseOkay.class, called.getClass());
+    }
+
+  }
 }

@@ -18,89 +18,24 @@ package adjoint.uplink_sdk.client.parameters.wrappers;
 import java.util.Map;
 
 /**
- *
  * @author Adjoint Inc.
  */
 public class CreateAccount extends TxTypeHeader {
-  private String tag;
-  private CreateAccountBody contents;
+  public final CreateAccountBody contents;
 
-  public CreateAccount(String tag, CreateAccountBody contents){
+  public CreateAccount(String tag, CreateAccountBody contents) {
     super(tag, "CreateAccount");
     this.contents = contents;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
+  public final class CreateAccountBody {
+    public final String timezone;
+    public final String pubKey;
+    public final Map metdata;
 
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the contents
-   */
-  public CreateAccountBody getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(CreateAccountBody contents) {
-    this.contents = contents;
-  }
-  private class CreateAccountBody{
-      private String timezone;
-      private String pubKey;
-      private Map metdata;
-
-    /**
-     * @return the timezone
-     */
-    public String getTimezone() {
-      return timezone;
-    }
-
-    /**
-     * @param timezone the timezone to set
-     */
-    public void setTimezone(String timezone) {
+    public CreateAccountBody(String timezone, String pubKey, Map metdata) {
       this.timezone = timezone;
-    }
-
-    /**
-     * @return the pubKey
-     */
-    public String getPubKey() {
-      return pubKey;
-    }
-
-    /**
-     * @param pubKey the pubKey to set
-     */
-    public void setPubKey(String pubKey) {
       this.pubKey = pubKey;
-    }
-
-    /**
-     * @return the metdata
-     */
-    public Map getMetdata() {
-      return metdata;
-    }
-
-    /**
-     * @param metdata the metdata to set
-     */
-    public void setMetdata(Map metdata) {
       this.metdata = metdata;
     }
   }

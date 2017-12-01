@@ -24,27 +24,14 @@ import java.util.List;
  * @author Adjoint Inc.
  */
 public class TransactionsWrap extends Response {
-  private List<TxContents> contents = new ArrayList<TxContents>();
+  public final List<TxContents> contents;
   
   public TransactionsWrap(String tag, List<TxContents> contents){
     super(tag, "RPCResp");
     this.contents = contents;
   }
-
-  /**
-   * @return the contents
-   */
-  public List<TxContents> getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(List<TxContents> contents) {
-    this.contents = contents;
-  }
 }
+
 class TxContents{
   private TxHeader header;
   private String fromPub;

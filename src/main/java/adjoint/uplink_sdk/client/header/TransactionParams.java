@@ -13,46 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
 public class TransactionParams {
-  private String method;
-  private Transactions params;
+  public final String method;
+  public final Transaction params;
 
-  public TransactionParams(Transactions params){
+  public TransactionParams(Transaction params) {
     this.method = "Transaction";
     this.params = params;
   }
 
-  /**
-   * @return the method
-   */
-  public String getMethod() {
-    return method;
-  }
-
-  /**
-   * @param method the method to set
-   */
-  public void setMethod(String method) {
-    this.method = method;
-  }
-
-  /**
-   * @return the params
-   */
-  public Transactions getParams() {
-    return params;
-  }
-
-  /**
-   * @param params the params to set
-   */
-  public void setParams(Transactions params) {
-    this.params = params;
-  }
 }

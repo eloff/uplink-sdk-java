@@ -16,31 +16,18 @@
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
 import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
+
 import java.util.Map;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class TxContract extends TxHeader{
-  private Map contents;
+public class TxContract extends TxHeader {
+  public final Map contents;
 
-  public TxContract(String tag, Map contents){
+  public TxContract(String tag, Map contents) {
     super(tag, "TxContract");
     this.contents = contents;
   }
 
-  /**
-   * @return the contents
-   */
-  public Map getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(Map contents) {
-    this.contents = contents;
-  }
 }

@@ -13,46 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class BindAssetHeader {
-  private String contract;
-  private String asset;
-  
-  public BindAssetHeader(String contract, String asset){
-    this.contract = contract;
-    this.asset =  asset;
-  }
+public class SyncLocalHeader {
+  public final String contract;
 
-  /**
-   * @return the contract
-   */
-  public String getContract() {
-    return contract;
-  }
-
-  /**
-   * @param contract the contract to set
-   */
-  public void setContract(String contract) {
+  public SyncLocalHeader(String contract) {
     this.contract = contract;
   }
 
-  /**
-   * @return the asset
-   */
-  public String getAsset() {
-    return asset;
-  }
-
-  /**
-   * @param asset the asset to set
-   */
-  public void setAsset(String asset) {
-    this.asset = asset;
-  }
 }

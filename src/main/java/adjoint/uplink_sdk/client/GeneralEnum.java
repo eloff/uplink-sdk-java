@@ -16,21 +16,16 @@
 package adjoint.uplink_sdk.client;
 
 /**
- *
  * @author Adjoint Inc.
  */
 public enum GeneralEnum {
-    TAG("tag"),
-    CONTENTS("contents");
+  TAG("tag"),
+  CONTENTS("contents");
 
-    private final String name;
+  public final String name;
 
-    private GeneralEnum(String name) {
-      this.name = name;
-    };
-
-    public String getName(){
-      return this.name;
-    };
+  GeneralEnum(String name) {
+    this.name = name;
+  }
 
 }

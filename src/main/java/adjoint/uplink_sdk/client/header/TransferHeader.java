@@ -13,29 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class RevokeAccountHeader {
-  private String address;
-  public RevokeAccountHeader(String acctAddress){
-    this.address = acctAddress;
+public class TransferHeader {
+  public final String assetAddr;
+  public final String toAddr;
+  public final Integer balance;
+
+  public TransferHeader(String assetAddr, String toAddr, Integer balance) {
+    this.assetAddr = assetAddr;
+    this.toAddr = toAddr;
+    this.balance = balance;
   }
 
-  /**
-   * @return the address
-   */
-  public String getAddress() {
-    return address;
-  }
-
-  /**
-   * @param address the address to set
-   */
-  public void setAddress(String address) {
-    this.address = address;
-  }
 }

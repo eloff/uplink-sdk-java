@@ -20,232 +20,59 @@ package adjoint.uplink_sdk.client.parameters.wrappers;
  */
 
 import adjoint.uplink_sdk.client.Response;
-import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class BlocksWrapper extends Response{
-  private List<Contents> contents = new ArrayList<Contents>();
+  public final List<Contents> contents;
 
   public BlocksWrapper(String tag, List<Contents> contents){
     super(tag,"RPCResp");
     this.contents = contents;
   }
 
-  /**
-   * @return the contents
-   */
-  public List<Contents> getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(List<Contents> contents) {
-    this.contents = contents;
-  }
-
   class Contents{
-    private BlocksHeader header;
-    private List<Transactions> transactions =  new ArrayList<Transactions>();
-    private Integer index;
-    private String signature;
-    private String addr;
+    public final BlocksHeader header;
+    public final List<Transactions> transactions;
+    public final Integer index;
+    public final String signature;
+    public final String addr;
 
-    /**
-     * @return the header
-     */
-    public BlocksHeader getHeader() {
-      return header;
-    }
 
-    /**
-     * @param header the header to set
-     */
-    public void setHeader(BlocksHeader header) {
+    Contents(BlocksHeader header, List<Transactions> transactions, Integer index, String signature, String addr) {
       this.header = header;
-    }
-
-    /**
-     * @return the transactions
-     */
-    public List<Transactions> getTransactions() {
-      return transactions;
-    }
-
-    /**
-     * @param transactions the transactions to set
-     */
-    public void setTransactions(List<Transactions> transactions) {
       this.transactions = transactions;
-    }
-
-    /**
-     * @return the index
-     */
-    public Integer getIndex() {
-      return index;
-    }
-
-    /**
-     * @param index the index to set
-     */
-    public void setIndex(Integer index) {
       this.index = index;
-    }
-
-    /**
-     * @return the signature
-     */
-    public String getSignature() {
-      return signature;
-    }
-
-    /**
-     * @param signature the signature to set
-     */
-    public void setSignature(String signature) {
       this.signature = signature;
-    }
-
-    /**
-     * @return the addr
-     */
-    public String getAddr() {
-      return addr;
-    }
-
-    /**
-     * @param addr the addr to set
-     */
-    public void setAddr(String addr) {
       this.addr = addr;
     }
   }
 
   class BlocksHeader {
-    private String origin;
-    private String merkleRoot;
-    private Integer timestamp;
-    private String prevBlock;
+    public final String origin;
+    public final String merkleRoot;
+    public final Integer timestamp;
+    public final String prevBlock;
 
-    /**
-     * @return the origin
-     */
-    public String getOrigin() {
-      return origin;
-    }
 
-    /**
-     * @param origin the origin to set
-     */
-    public void setOrigin(String origin) {
+    BlocksHeader(String origin, String merkleRoot, Integer timestamp, String prevBlock) {
       this.origin = origin;
-    }
-
-    /**
-     * @return the merkleRoot
-     */
-    public String getMerkleRoot() {
-      return merkleRoot;
-    }
-
-    /**
-     * @param merkleRoot the merkleRoot to set
-     */
-    public void setMerkleRoot(String merkleRoot) {
       this.merkleRoot = merkleRoot;
-    }
-
-    /**
-     * @return the timestamp
-     */
-    public Integer getTimestamp() {
-      return timestamp;
-    }
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(Integer timestamp) {
       this.timestamp = timestamp;
-    }
-
-    /**
-     * @return the prevBlock
-     */
-    public String getPrevBlock() {
-      return prevBlock;
-    }
-
-    /**
-     * @param prevBlock the prevBlock to set
-     */
-    public void setPrevBlock(String prevBlock) {
       this.prevBlock = prevBlock;
     }
   }
 
   class Transactions {
-    private TxHeader header;
-    private String origin;
-    private String signature;
-    private Integer timestamp;
+    public final TxHeader header;
+    public final String origin;
+    public final String signature;
+    public final Integer timestamp;
 
-    /**
-     * @return the header
-     */
-    public TxHeader getHeader() {
-      return header;
-    }
-
-    /**
-     * @param header the header to set
-     */
-    public void setHeader(TxHeader header) {
+    Transactions(TxHeader header, String origin, String signature, Integer timestamp) {
       this.header = header;
-    }
-
-    /**
-     * @return the origin
-     */
-    public String getOrigin() {
-      return origin;
-    }
-
-    /**
-     * @param origin the origin to set
-     */
-    public void setOrigin(String origin) {
       this.origin = origin;
-    }
-
-    /**
-     * @return the signature
-     */
-    public String getSignature() {
-      return signature;
-    }
-
-    /**
-     * @param signature the signature to set
-     */
-    public void setSignature(String signature) {
       this.signature = signature;
-    }
-
-    /**
-     * @return the timestamp
-     */
-    public Integer getTimestamp() {
-      return timestamp;
-    }
-
-    /**
-     * @param timestamp the timestamp to set
-     */
-    public void setTimestamp(Integer timestamp) {
       this.timestamp = timestamp;
     }
   }

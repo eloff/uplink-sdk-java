@@ -24,6 +24,7 @@ import java.util.Map;
 public class TxTypeHeader {
  private String tag;
  private String type;
+
  public TxTypeHeader(String tag, String type){
    this.tag = tag;
    this.type = type;

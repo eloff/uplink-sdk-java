@@ -15,77 +15,23 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
-import java.util.Map;
-
 /**
- *
  * @author Adjoint Inc.
  */
 public class CreateContract extends TxTypeHeader {
-  private String tag;
-  private CreateContractBody contents;
+  public final CreateContractBody contents;
 
-  public CreateContract(String tag, CreateContractBody contents){
+  public CreateContract(String tag, CreateContractBody contents) {
     super(tag, "CreateContract");
     this.contents = contents;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
+  public class CreateContractBody {
+    public final String contract;
+    public final String address;
 
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the contents
-   */
-  public CreateContractBody getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(CreateContractBody contents) {
-    this.contents = contents;
-  }
-  private class CreateContractBody{
-      private String contract;
-      private String address;
-
-    /**
-     * @return the contract
-     */
-    public String getContract() {
-      return contract;
-    }
-
-    /**
-     * @param contract the contract to set
-     */
-    public void setContract(String contract) {
+    private CreateContractBody(String contract, String address) {
       this.contract = contract;
-    }
-
-    /**
-     * @return the address
-     */
-    public String getAddress() {
-      return address;
-    }
-
-    /**
-     * @param address the address to set
-     */
-    public void setAddress(String address) {
       this.address = address;
     }
   }

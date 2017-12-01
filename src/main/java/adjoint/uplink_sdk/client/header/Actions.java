@@ -13,46 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class Type {
-  private String tag;
-  private Actions contents;
+public class Actions {
+  public final String tag;
+  public final Object contents;
 
-  public Type(String tag, Actions contents){
+  public Actions(String tag, Object contents) {
     this.tag = tag;
-    this.contents = contents;
-    }
-
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
-
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the contents
-   */
-  public Actions getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(Actions contents) {
     this.contents = contents;
   }
 }

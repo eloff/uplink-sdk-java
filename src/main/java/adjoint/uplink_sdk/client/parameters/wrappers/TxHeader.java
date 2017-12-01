@@ -16,43 +16,15 @@
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
 /**
- *
  * @author Adjoint Inc.
  */
 public class TxHeader {
-  private String tag;
-  private String type;
+  public final String tag;
+  public final String type;
 
-  public TxHeader(String tag, String type){
+  public TxHeader(String tag, String type) {
     this.tag = tag;
     this.type = type;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
-
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the type
-   */
-  public String getType() {
-    return type;
-  }
-
-  /**
-   * @param type the type to set
-   */
-  public void setType(String type) {
-    this.type = type;
-  }
 }

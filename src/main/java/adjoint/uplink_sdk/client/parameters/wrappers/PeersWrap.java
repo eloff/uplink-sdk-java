@@ -16,95 +16,37 @@
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
 import adjoint.uplink_sdk.client.Response;
-import java.util.ArrayList;
+
 import java.util.List;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class PeersWrap extends Response{
-  private  List<Peers> contents = new ArrayList<Peers>();;
+public class PeersWrap extends Response {
+  public final List<Peers> contents;
 
-  public PeersWrap(String tag, List<Peers> contents){
+  public PeersWrap(String tag, List<Peers> contents) {
     super(tag, "RPCResp");
     this.contents = contents;
   }
 
-  /**
-   * @return the contents
-   */
-  public List<Peers> getContents() {
-    return contents;
-  }
+  class Peers {
+    public final String tag; // Peer
+    public final PeersBody contents;
 
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(List<Peers> contents) {
-    this.contents = contents;
-  }
-  class Peers{
-    private String tag; // Peer
-    private PeersBody contents;
-
-    /**
-     * @return the tag
-     */
-    public String getTag() {
-      return tag;
-    }
-
-    /**
-     * @param tag the tag to set
-     */
-    public void setTag(String tag) {
+    Peers(String tag, PeersBody contents) {
       this.tag = tag;
-    }
-
-    /**
-     * @return the contents
-     */
-    public PeersBody getContents() {
-      return contents;
-    }
-
-    /**
-     * @param contents the contents to set
-     */
-    public void setContents(PeersBody contents) {
       this.contents = contents;
     }
   }
-  class PeersBody{
-    private String peer_acc_addr;
-    private String peer_pid;
 
-    /**
-     * @return the peer_acc_addr
-     */
-    public String getPeer_acc_addr() {
-      return peer_acc_addr;
-    }
+  class PeersBody {
+    public final String peer_acc_addr;
+    public final String peer_pid;
 
-    /**
-     * @param peer_acc_addr the peer_acc_addr to set
-     */
-    public void setPeer_acc_addr(String peer_acc_addr) {
+
+    PeersBody(String peer_acc_addr, String peer_pid) {
       this.peer_acc_addr = peer_acc_addr;
-    }
-
-    /**
-     * @return the peer_pid
-     */
-    public String getPeer_pid() {
-      return peer_pid;
-    }
-
-    /**
-     * @param peer_pid the peer_pid to set
-     */
-    public void setPeer_pid(String peer_pid) {
       this.peer_pid = peer_pid;
     }
   }

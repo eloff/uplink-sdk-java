@@ -58,9 +58,9 @@ After installing uplink-sdk-java, import the sdk into your project, and create a
 new instance of Uplink:
 
 ```java
-package com.yourproject
+package com.yourproject;
 
-import adjoint.uplink_sdk.client
+import adjoint.uplink_sdk.client;
 
 public class YourProject{
     public static void main(String[] args){

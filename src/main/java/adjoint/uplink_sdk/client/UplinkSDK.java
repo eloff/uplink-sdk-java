@@ -19,6 +19,7 @@ import static adjoint.uplink_sdk.client.Crypto.DeriveAccountAddress;
 import static adjoint.uplink_sdk.client.Crypto.DeriveAssetAddress;
 import static adjoint.uplink_sdk.client.Crypto.DeriveContractAddress;
 import static adjoint.uplink_sdk.client.Crypto.RemovePadding;
+
 import adjoint.uplink_sdk.client.parameters.wrappers.AccountWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.AssetWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.ContractWrap;
@@ -32,23 +33,25 @@ import adjoint.uplink_sdk.client.parameters.wrappers.TxContract;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
 
-import adjoint.uplink_sdk.client.parameters.RevokeAccountHeader;
-import adjoint.uplink_sdk.client.parameters.ContractHeader;
-import adjoint.uplink_sdk.client.parameters.TransferHeader;
-import adjoint.uplink_sdk.client.parameters.AccountHeader;
-import adjoint.uplink_sdk.client.parameters.SyncLocalHeader;
-import adjoint.uplink_sdk.client.parameters.BindAssetHeader;
-import adjoint.uplink_sdk.client.parameters.AssetHeader;
+import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
+import adjoint.uplink_sdk.client.header.CreateContractHeader;
+import adjoint.uplink_sdk.client.header.TransferHeader;
+import adjoint.uplink_sdk.client.header.CreateAccountHeader;
+import adjoint.uplink_sdk.client.header.SyncLocalHeader;
+import adjoint.uplink_sdk.client.header.BindAssetHeader;
+import adjoint.uplink_sdk.client.header.CreateAssetHeader;
 
-import adjoint.uplink_sdk.client.parameters.Actions;
-import adjoint.uplink_sdk.client.parameters.Type;
-import adjoint.uplink_sdk.client.parameters.Transactions;
-import adjoint.uplink_sdk.client.parameters.TransactionParams;
+import adjoint.uplink_sdk.client.header.Actions;
+import adjoint.uplink_sdk.client.header.Type;
+import adjoint.uplink_sdk.client.header.Transaction;
+import adjoint.uplink_sdk.client.header.TransactionParams;
 
 import static adjoint.uplink_sdk.client.Crypto.Sign;
 import static adjoint.uplink_sdk.client.Crypto.SignBytes;
-import adjoint.uplink_sdk.client.parameters.AssetType;
-import adjoint.uplink_sdk.client.parameters.CallContractHeader;
+
+import adjoint.uplink_sdk.client.header.AssetType;
+import adjoint.uplink_sdk.client.header.CallContractHeader;
+import adjoint.uplink_sdk.client.header.CirculateHeader;
 import adjoint.uplink_sdk.client.parameters.wrappers.CallContract;
 import adjoint.uplink_sdk.client.parameters.wrappers.CreateAccount;
 import adjoint.uplink_sdk.client.parameters.wrappers.CreateAsset;
@@ -57,14 +60,10 @@ import adjoint.uplink_sdk.client.parameters.wrappers.RevokeAccount;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransferAsset;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxTypeHeader;
 
-import com.sun.jersey.api.client.Client;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+
+import java.io.*;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -73,6 +72,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,176 +80,169 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
 
 public class UplinkSDK {
 
-  private Client client;
   private String url;
-  private String error;
 
-  MakeRequest request = new MakeRequest();
-  Gson gson = new Gson();
+
+  private MakeRequest request = new MakeRequest();
+  private Gson gson = new Gson();
 
   /**
    * @author Adjoint Inc.
    */
-    public UplinkSDK(String protocol, String address, String port){
-        this.client = Client.create();
-        this.url = protocol + address + ":" + port; // address is "https://xx.xxx.xxx", port is "1234"
-    }
+  public UplinkSDK(String protocol, String address, String port) {
+    this.url = protocol + address + ":" + port; // address is "https://xx.xxx.xxx", port is "1234"
+  }
 
   /*======================*/
   //   READ
   /*======================*/
-  public Response GetBlocks() {
+  public Response getBlocks() {
 
     String url = this.url + "/blocks";
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(BlocksWrapper.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(BlocksWrapper.class, ResponseEnum.RPC_RESP.name);
     RuntimeTypeAdapterFactory<TxHeader> adapter = RuntimeTypeAdapterFactory
-            .of(TxHeader.class, GeneralEnum.TAG.getName())
-            .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.getName())
-            .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.getName())
-            .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.getName());
+        .of(TxHeader.class, GeneralEnum.TAG.name)
+        .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.name)
+        .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.name)
+        .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.name);
 
     RuntimeTypeAdapterFactory<TxTypeHeader> adapterType = RuntimeTypeAdapterFactory
-            .of(TxTypeHeader.class, GeneralEnum.TAG.getName())
-            .registerSubtype(CreateAccount.class, TxTypeEnum.CREATE_ACCOUNT.getName())
-            .registerSubtype(CreateAsset.class, TxTypeEnum.CREATE_ASSET.getName())
-            .registerSubtype(CreateContract.class, TxTypeEnum.CREATE_CONTRACT.getName())
-            .registerSubtype(TransferAsset.class, TxTypeEnum.TRANSFER_ASSET.getName())
-            .registerSubtype(RevokeAccount.class, TxTypeEnum.REVOKE_ACCOUNT.getName())
-            .registerSubtype(CallContract.class, TxTypeEnum.CALL_CONTRACT.getName());
+        .of(TxTypeHeader.class, GeneralEnum.TAG.name)
+        .registerSubtype(CreateAccount.class, TxTypeEnum.CREATE_ACCOUNT.name)
+        .registerSubtype(CreateAsset.class, TxTypeEnum.CREATE_ASSET.name)
+        .registerSubtype(CreateContract.class, TxTypeEnum.CREATE_CONTRACT.name)
+        .registerSubtype(TransferAsset.class, TxTypeEnum.TRANSFER_ASSET.name)
+        .registerSubtype(RevokeAccount.class, TxTypeEnum.REVOKE_ACCOUNT.name)
+        .registerSubtype(CallContract.class, TxTypeEnum.CALL_CONTRACT.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapterType)
-            .registerTypeAdapterFactory(adapter)
-            .registerTypeAdapterFactory(adapterResp)
-            .create();
+        .registerTypeAdapterFactory(adapterType)
+        .registerTypeAdapterFactory(adapter)
+        .registerTypeAdapterFactory(adapterResp)
+        .create();
 
-    Response blocks = gson.fromJson(output, Response.class);
-    return blocks;
+    return gson.fromJson(output, Response.class);
   }
-  public Response GetPeers(){
+
+  public Response getPeers() {
     String url = this.url + "/peers";
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(PeersWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(PeersWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder().registerTypeAdapterFactory(adapter).create();
 
-    Response peers = gson.fromJson(output, Response.class);
-    return peers;
+    return gson.fromJson(output, Response.class);
   }
-  public Response GetAccounts(){
+
+  public Response getAccounts() {
     String url = this.url + "/accounts";
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountsWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountsWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response accounts = gson.fromJson(output, Response.class);
-    return accounts;
+    return gson.fromJson(output, Response.class);
   }
-  public Response GetAccount(String Address) {
+
+  public Response getAccount(String Address) {
     String url = this.url + "/accounts/" + Address;
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response account = gson.fromJson(output, Response.class);
-    return account;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response GetAssets() {
+  public Response getAssets() {
     String url = this.url + "/assets";
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AssetWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AssetWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response assets = gson.fromJson(output, Response.class);
-    return assets;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response GetTransactions(int BlockId) {
+  public Response getTransactions(int BlockId) {
     String url = this.url + "/transactions/" + BlockId;
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(TransactionsWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(TransactionsWrap.class, ResponseEnum.RPC_RESP.name);
 
     RuntimeTypeAdapterFactory<TxHeader> adapter = RuntimeTypeAdapterFactory
-            .of(TxHeader.class, GeneralEnum.TAG.getName())
-            .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.getName())
-            .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.getName())
-            .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.getName());
+        .of(TxHeader.class, GeneralEnum.TAG.name)
+        .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.name)
+        .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.name)
+        .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .registerTypeAdapterFactory(adapterResp)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .registerTypeAdapterFactory(adapterResp)
+        .create();
 
-    Response transactions = gson.fromJson(output, Response.class);
-    return transactions;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response GetContracts() {
+  public Response getContracts() {
     String url = this.url + "/contracts";
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ContractsWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ContractsWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response contracts = gson.fromJson(output, Response.class);
-    return contracts;
+    return gson.fromJson(output, Response.class);
 
   }
 
-  public Response GetContract(String address) {
+  public Response getContract(String address) {
     String url = this.url + "/contracts/" + address;
 
     String params = "";
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ContractWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ContractWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response contract = gson.fromJson(output, Response.class);
-    return contract;
-    }
+    return gson.fromJson(output, Response.class);
+  }
 
   /*======================*/
   //   Create
   /*======================*/
-  public Response CreateAccount(String Timezone, Map<String, String> meta, PrivateKey privateKey, PublicKey publicKey, String fromAddress) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
+  public Response createAccount(String Timezone, Map<String, String> meta, PrivateKey privateKey, PublicKey publicKey, String fromAddress) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CREATE_ACCOUNT.getValue();
     long timestamp = System.currentTimeMillis() * 1000;
 
     // Serialization to convert Public key to hex string ========
@@ -266,35 +259,12 @@ public class UplinkSDK {
 
     String pubKeyHex = DatatypeConverter.printHexBinary(keyBytes);
     pubKeyHex = pubKeyHex.toLowerCase();
-    byte[] byteTimezone = Timezone.getBytes();
-
-    int pubkeyLen = pubKeyHex.length();
+    CreateAccountHeader aHead = new CreateAccountHeader(pubKeyHex, Timezone, meta);
 
     // Prepare Bytes to sign [Txtype, pubkeyhex, timezone, metadata]
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
-    stream.writeShort(pubkeyLen);
-    stream.writeBytes(pubKeyHex);
-    stream.writeShort(Timezone.length());
-    stream.write(byteTimezone);
-
-    // write bytes for hashmap of meta
-    if (!meta.isEmpty()) {
-      stream.writeShort(meta.size());
-      meta.forEach((k, v) -> {
-        try {
-          stream.writeShort(k.length());
-          stream.writeBytes(k);
-          stream.writeShort(v.length());
-          stream.writeBytes(v);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      });
-    } else {
-      stream.writeShort(0);
-    }
+    aHead.writeBinary(stream);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
 
@@ -310,105 +280,82 @@ public class UplinkSDK {
     }
 
     //Serialize Parameters
-    AccountHeader aHead = new AccountHeader(pubKeyHex, Timezone, meta);
-    Actions actions = new Actions(TxTypeEnum.CREATE_ACCOUNT.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_ACCOUNT.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, origin, toAddress, type);
+    Actions actions = new Actions(TxTypeEnum.CREATE_ACCOUNT.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ACCOUNT.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, origin, type);
     TransactionParams tx = new TransactionParams(trans);
     // Make it a json string
     String params = gson.toJson(tx, TransactionParams.class);
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
-            .disableHtmlEscaping()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .disableHtmlEscaping()
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response account = gson.fromJson(output, Response.class);
-    return account;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response CreateAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String Name, int Supply, String assetType, short precision, String reference, String issuer) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
+  public Response createAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CREATE_ASSET.getValue();
     long timestamp = System.currentTimeMillis() * 1000;
+    AssetType aType = new AssetType(assetType, precision);
+    String assetAddr = DeriveAssetAddress(name, issuer, supply, reference, aType, timestamp);
+    CreateAssetHeader aHead = new CreateAssetHeader(name, assetAddr, supply, aType, reference, issuer);
 
     // Prepare Bytes to sign [Txtype, timezone, metadata]
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
 
-    stream.writeShort(TxType);
-    stream.writeShort(Name.length());
-    stream.writeBytes(Name);
-    stream.writeLong(Supply);
-    stream.writeShort(1);
-    stream.writeShort(reference.length());
-    stream.writeBytes(reference);
-    stream.writeShort(assetType.length());
-    stream.writeBytes(assetType);
-    if ("Fractional".equals(assetType)) {
-      stream.writeLong(precision);
-    }
+    aHead.writeBinary(stream);
 
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
-
-    // Sign already!
     byte[] signedBytes = SignBytes(convertedBytes, privateKey);
     String signature = Sign(signedBytes);
 
-    //Serialize
-    AssetType aType = new AssetType(assetType, precision);
-    AssetHeader aHead = new AssetHeader(Name, Supply, aType, reference, issuer);
-    Actions actions = new Actions(TxTypeEnum.CREATE_ASSET.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_ASSET.getName(), actions);
-
-    String toAddress = DeriveAssetAddress(signedBytes, fromAddr);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddress, type);
+    Actions actions = new Actions(TxTypeEnum.CREATE_ASSET.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
-    // Jsonify
+
     String params = gson.toJson(tx, TransactionParams.class);
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .setPrettyPrinting()
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .setPrettyPrinting()
+        .create();
 
     Response asset = gson.fromJson(output, Response.class);
 
     if (asset.getClass() == ResponseOkay.class) {
-      Response AssetAddress = new Response(toAddress, "assetAddress");
-      return AssetAddress;
+      return new Response(assetAddr, "assetAddress");
     } else {
       return asset;
     }
-  };
+  }
 
-  public Response CreateContract(PrivateKey privateKey, String fromAddr, String script) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  public Response createContract(PrivateKey privateKey, String fromAddr, String script) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CREATE_CONTRACT.getValue();
+    Integer TxType = TxTypeEnum.CREATE_CONTRACT.value;
     long timestamp = System.currentTimeMillis() * 1000;
 
     String contractAddress = DeriveContractAddress(script);
-    byte[] byteContractAddr = Base58convert.decode(contractAddress);
+    CreateContractHeader aHead = new CreateContractHeader(script, fromAddr, contractAddress, timestamp);
 
     // Prepare Bytes to sign [Txtype, timezone, metadata]
-    final ByteArrayOutputStream data = new ByteArrayOutputStream();
-    final DataOutputStream stream = new DataOutputStream(data);
+    ByteArrayOutputStream data = new ByteArrayOutputStream();
+    DataOutputStream stream = new DataOutputStream(data);
 
-    stream.writeShort(TxType);
-    stream.write(byteContractAddr);
-    stream.writeShort(script.length());
-    stream.writeBytes(script);
-
+    aHead.writeBinary(stream);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
 
@@ -417,10 +364,9 @@ public class UplinkSDK {
     String signature = Sign(signedBytes);
 
     //Serialize
-    ContractHeader aHead = new ContractHeader(script, fromAddr, contractAddress, timestamp);
-    Actions actions = new Actions(TxTypeEnum.CREATE_CONTRACT.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_CONTRACT.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, contractAddress, type);
+    Actions actions = new Actions(TxTypeEnum.CREATE_CONTRACT.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_CONTRACT.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Json to string
@@ -428,25 +374,24 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class,ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .setPrettyPrinting()
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .setPrettyPrinting()
+        .create();
 
     Response contract = gson.fromJson(output, Response.class);
     if (contract.getClass() == ResponseOkay.class) {
-      Response ContractAddress = new Response(contractAddress, "contractAddress");
-      return ContractAddress;
+      return new Response(contractAddress, "contractAddress");
     } else {
       return contract;
     }
-  };
+  }
 
-  public Response TransferAsset(String fromAddr, String assetAddr, String toAddr, Integer balance, PrivateKey privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, InvalidKeySpecException {
+  public Response transferAsset(String fromAddr, String assetAddr, String toAddr, Integer balance, PrivateKey privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, InvalidKeySpecException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.TRANSFER_ASSET.getValue();
+    Integer TxType = TxTypeEnum.TRANSFER_ASSET.value;
     long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode
@@ -469,9 +414,9 @@ public class UplinkSDK {
 
     //Serialize Parameters
     TransferHeader aHead = new TransferHeader(assetAddr, toAddr, balance);
-    Actions actions = new Actions(TxTypeEnum.TRANSFER_ASSET.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_ASSET.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddr, type);
+    Actions actions = new Actions(TxTypeEnum.TRANSFER_ASSET.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Json to string
@@ -479,20 +424,18 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response transferred = gson.fromJson(output, Response.class);
-
-    return transferred;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response RevokeAccount(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  public Response revokeAccount(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.REVOKE_ACCOUNT.getValue();
+    Integer TxType = TxTypeEnum.REVOKE_ACCOUNT.value;
     long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode address
@@ -501,7 +444,7 @@ public class UplinkSDK {
     // Prepare Bytes to sign
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
+    stream.writeByte(TxTypeEnum.REVOKE_ACCOUNT.value);
     stream.write(byteAcctAddress);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
@@ -512,9 +455,9 @@ public class UplinkSDK {
     String toAddr = null;
     // Serialize parameters
     RevokeAccountHeader aHead = new RevokeAccountHeader(acctAddress);
-    Actions actions = new Actions(TxTypeEnum.REVOKE_ACCOUNT.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_ACCOUNT.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddr, type);
+    Actions actions = new Actions(TxTypeEnum.REVOKE_ACCOUNT.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ACCOUNT.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -523,147 +466,97 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response account = gson.fromJson(output, Response.class);
-    return account;
+    return gson.fromJson(output, Response.class);
   }
 
-  public Response CallContract(PrivateKey privateKey, String fromAddr, String contractAddress, String contractMethod, Map<String, String> arguments) throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+  public Response callContract(PrivateKey privateKey, String fromAddr, String contractAddress, String contractMethod, HashMap<String, String> arguments) throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CALL_CONTRACT.getValue();
     long timestamp = System.currentTimeMillis() * 1000;
 
-    // b58 decode address
-    byte[] byteContractAddress = Base58convert.decode(contractAddress);
-
-    // Prepare Bytes to sign
-    final ByteArrayOutputStream data = new ByteArrayOutputStream();
-    final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
-    stream.write(byteContractAddress);
-    stream.writeLong(contractMethod.length());
-    stream.writeBytes(contractMethod);
-    stream.writeLong(arguments.size());
-
-    List<Object> argsList = new ArrayList<Object>();
-
-    // write bytes for hashmap of arguments
+    List<Map<String, String>> argsList = new ArrayList<>();
     arguments.forEach((type, value) -> {
-      if (FCLEnum.VACCOUNT.getHuman().equals(type)) {
-        try {
-          Map acctArg = new HashMap();
-          acctArg.put(GeneralEnum.TAG.getName(), FCLEnum.VACCOUNT.getName());
-          acctArg.put(GeneralEnum.CONTENTS.getName(), value);
-          argsList.add(acctArg);
 
-          byte[] vB = Base58convert.decode((String) value);
-          stream.writeByte(FCLEnum.VACCOUNT.getValue());
-          stream.write(vB);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      if (FCLEnum.VACCOUNT.human.equals(type)) {
+        Map acctArg = new HashMap();
+        acctArg.put(GeneralEnum.TAG.name, FCLEnum.VACCOUNT.name);
+        acctArg.put(GeneralEnum.CONTENTS.name, value);
+        argsList.add(acctArg);
       }
-      if (FCLEnum.VASSET.getHuman().equals(type)) {
-        try {
-          Map assetArg = new HashMap();
-          assetArg.put(GeneralEnum.TAG.getName(), FCLEnum.VASSET.getName());
-          assetArg.put(GeneralEnum.CONTENTS.getName(), value);
-          argsList.add(assetArg);
+      if (FCLEnum.VASSET.human.equals(type)) {
+        Map assetArg = new HashMap();
+        assetArg.put(GeneralEnum.TAG.name, FCLEnum.VASSET.name);
+        assetArg.put(GeneralEnum.CONTENTS.name, value);
+        argsList.add(assetArg);
+      }
+      if (FCLEnum.VCONTRACT.human.equals(type)) {
+        Map ctrctArg = new HashMap();
+        ctrctArg.put(GeneralEnum.TAG.name, FCLEnum.VCONTRACT.name);
+        ctrctArg.put(GeneralEnum.CONTENTS.name, value);
+        argsList.add(ctrctArg);
+      }
+      if (FCLEnum.VINT.human.equals(type)) {
+        long vB = Long.valueOf(value);
+        Map intArg = new HashMap();
+        intArg.put(GeneralEnum.TAG.name, FCLEnum.VINT.name);
+        intArg.put(GeneralEnum.CONTENTS.name, vB);
+        argsList.add(intArg);
+      }
+      if (FCLEnum.VFLOAT.human.equals(type)) {
+        double vB = Double.parseDouble(value);
+        Map floatArg = new HashMap();
 
-          byte[] vB = Base58convert.decode((String) value);
-          stream.writeByte(FCLEnum.VASSET.getValue());
-          stream.write(vB);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        floatArg.put(GeneralEnum.TAG.name, FCLEnum.VFLOAT.name);
+        floatArg.put(GeneralEnum.CONTENTS.name, vB);
+        argsList.add(floatArg);
       }
-      if (FCLEnum.VCONTRACT.getHuman().equals(type)) {
-        try {
-          Map ctrctArg = new HashMap();
-          ctrctArg.put(GeneralEnum.TAG.getName(), FCLEnum.VCONTRACT.getName());
-          ctrctArg.put(GeneralEnum.CONTENTS.getName(), value);
-          argsList.add(ctrctArg);
+      if (FCLEnum.VBOOL.human.equals(type)) {
+        boolean vB = Boolean.parseBoolean(value);
+        Map boolArg = new HashMap();
 
-          byte[] vB = Base58convert.decode((String) value);
-          stream.writeByte(FCLEnum.VCONTRACT.getValue());
-          stream.write(vB);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        boolArg.put(GeneralEnum.TAG.name, FCLEnum.VBOOL.name);
+        boolArg.put(GeneralEnum.CONTENTS.name, vB);
+        argsList.add(boolArg);
       }
-      if (FCLEnum.VINT.getHuman().equals(type)) {
-        try {
-          long vB = Long.valueOf(value);
-          Map intArg = new HashMap();
-          stream.writeByte(FCLEnum.VINT.getValue());
-          stream.writeLong(vB);
-          intArg.put(GeneralEnum.TAG.getName(), FCLEnum.VINT.getName());
-          intArg.put(GeneralEnum.CONTENTS.getName(), vB);
-          argsList.add(intArg);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      if (FCLEnum.VMSG.human.equals(type)) {
+        Map msgArg = new HashMap();
+        msgArg.put(GeneralEnum.TAG.name, FCLEnum.VMSG.name);
+        msgArg.put(GeneralEnum.CONTENTS.name, value);
+        argsList.add(msgArg);
       }
-      if (FCLEnum.VFLOAT.getHuman().equals(type)) {
-        try {
-          double vB = Double.parseDouble(value);
-          Map floatArg = new HashMap();
-          stream.writeByte(FCLEnum.VFLOAT.getValue());
-          stream.writeDouble(vB);
-          floatArg.put(GeneralEnum.TAG.getName(), FCLEnum.VFLOAT.getName());
-          floatArg.put(GeneralEnum.CONTENTS.getName(), vB);
-          argsList.add(floatArg);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      }
-      if (FCLEnum.VBOOL.getHuman().equals(type)) {
-        try {
-          boolean vB = Boolean.parseBoolean(value);
-          Map boolArg = new HashMap();
-          stream.writeByte(FCLEnum.VBOOL.getValue());
-          stream.writeBoolean(vB);
-          boolArg.put(GeneralEnum.TAG.getName(), FCLEnum.VBOOL.getName());
-          boolArg.put(GeneralEnum.CONTENTS.getName(), vB);
-          argsList.add(boolArg);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
-      }
-      if (FCLEnum.VMSG.getHuman().equals(type)) {
-        try {
-          Map msgArg = new HashMap();
-          msgArg.put(GeneralEnum.TAG.getName(), FCLEnum.VMSG.getName());
-          msgArg.put(GeneralEnum.CONTENTS.getName(), value);
-          argsList.add(msgArg);
-          int vlen = value.length();
-          stream.writeByte(FCLEnum.VMSG.getValue());
-          stream.writeShort(vlen);
-          stream.writeBytes(value);
-        } catch (IOException ex) {
-          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
-        }
+      if (FCLEnum.VDATETIME.human.equals(type)) {
+
+        Map msgArg = new HashMap();
+        msgArg.put(GeneralEnum.TAG.name, FCLEnum.VDATETIME.name);
+        msgArg.put(GeneralEnum.CONTENTS.name, value.toString());
+        argsList.add(msgArg);
       }
     });
 
+    // Prepare Bytes to sign
+    final ByteArrayOutputStream data = new ByteArrayOutputStream();
+    final DataOutputStream stream = new DataOutputStream(data);
+
+    CallContractHeader aHead = new CallContractHeader(contractAddress, contractMethod, argsList);
+    aHead.writeBinary(stream);
+
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
 
     // Sign Bytes
     byte[] signedBytes = SignBytes(convertedBytes, privateKey);
     String signature = Sign(signedBytes);
-    String toAddr = null;
+
 
     // Serialize parameters
-    CallContractHeader aHead = new CallContractHeader(contractAddress, contractMethod, argsList);
-    Actions actions = new Actions(TxTypeEnum.CALL_CONTRACT.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_CONTRACT.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddr, type);
+    Actions actions = new Actions(TxTypeEnum.CALL_CONTRACT.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_CONTRACT.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -671,41 +564,40 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response contract = gson.fromJson(output, Response.class);
-    return contract;
+    return gson.fromJson(output, Response.class);
   }
 
-  // Not implemented
-  public Response SyncLocal(PrivateKey privateKey, String fromAddr, String contractAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  public Response circulateAsset(PrivateKey privateKey, String fromAddr, String assetAddress, int amount) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.SYNC_LOCAL.getValue();
+    Integer TxType = TxTypeEnum.CIRCULATE_ASSET.value;
     long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode address
-    byte[] byteContractAddress = Base58convert.decode(contractAddress);
+    byte[] byteAssetAddress = Base58convert.decode(assetAddress);
 
     // Prepare Bytes to sign
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
     stream.writeShort(TxType);
-    stream.write(byteContractAddress);
+    stream.write(byteAssetAddress);
+    stream.writeLong(amount);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
 
     // Sign Bytes
     byte[] signedBytes = SignBytes(convertedBytes, privateKey);
     String signature = Sign(signedBytes);
-    String toAddr = null;
+
     // Serialize parameters
-    SyncLocalHeader aHead = new SyncLocalHeader(contractAddress);
-    Actions actions = new Actions(TxTypeEnum.SYNC_LOCAL.getName(), aHead);
-    Type type = new Type(TxTypeEnum.TX_CONTRACT.getName(), actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddr, type);
+    CirculateHeader aHead = new CirculateHeader(assetAddress, amount);
+    Actions actions = new Actions(TxTypeEnum.CIRCULATE_ASSET.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -713,19 +605,18 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_RESP.name);
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response contract = gson.fromJson(output, Response.class);
-    return contract;
-  };
+    return gson.fromJson(output, ResponseOkay.class);
+  }
 
-    // Not Implemented
+  // Not Implemented
   public Response BindAsset(PrivateKey privateKey, String fromAddr, String contractAddress, String assetAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.BIND_ASSET.getValue();
+    Integer TxType = TxTypeEnum.BIND_ASSET.value;
     long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode address
@@ -749,7 +640,7 @@ public class UplinkSDK {
     BindAssetHeader aHead = new BindAssetHeader(contractAddress, assetAddress);
     Actions actions = new Actions("Bind", aHead);
     Type type = new Type("TxAsset", actions);
-    Transactions trans = new Transactions(timestamp, signature, fromAddr, toAddr, type);
+    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -758,29 +649,27 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AssetWrap.class, ResponseEnum.RPC_RESP.getName());
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AssetWrap.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
-            .registerTypeAdapterFactory(adapter)
-            .create();
+        .registerTypeAdapterFactory(adapter)
+        .create();
 
-    Response contract = gson.fromJson(output, Response.class);
-    return contract;
+    return gson.fromJson(output, Response.class);
   }
 
   public RuntimeTypeAdapterFactory<Response> RTAFgenerator(Class responseTypeClass, String RespName) {
-    RuntimeTypeAdapterFactory<Response> adapter = RuntimeTypeAdapterFactory
-            .of(Response.class, GeneralEnum.TAG.getName())
-            .registerSubtype(ErrorResp.class,  ResponseEnum.RPC_RESP_ERROR.getName())
-            .registerSubtype(responseTypeClass, RespName);
-    return adapter;
+    return (RuntimeTypeAdapterFactory<Response>) RuntimeTypeAdapterFactory
+        .of(Response.class, GeneralEnum.TAG.name)
+        .registerSubtype(ErrorResp.class, ResponseEnum.RPC_RESP_ERROR.name)
+        .registerSubtype(responseTypeClass, RespName);
   }
 
   private static final char[] HEXCHARS_LC = "0123456789abcdef".toCharArray();
 
-  public String HexDump(final byte[] buf, final int ofs, final int len) {
-    final StringBuffer sb = new StringBuffer(3 * len);
-    for (int i = ofs; i < ofs + len; ++i) {
+  public String HexDump(final byte[] buf) {
+    final StringBuffer sb = new StringBuffer(3 * buf.length);
+    for (int i = 0; i < 0 + buf.length; ++i) {
       if (i < buf.length) {
         sb.append(HEXCHARS_LC[(buf[i] & 0xF0) >> 4]);
         sb.append(HEXCHARS_LC[buf[i] & 0x0F]);

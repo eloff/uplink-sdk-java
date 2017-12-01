@@ -16,12 +16,14 @@
 package adjoint.uplink_sdk;
 
 import adjoint.uplink_sdk.client.*;
+
 import static adjoint.uplink_sdk.client.Crypto.GenerateKeys;
 import static adjoint.uplink_sdk.client.Crypto.ReadKeyFromFile;
 import static adjoint.uplink_sdk.client.Crypto.ReadPrivateKey;
 import static adjoint.uplink_sdk.client.Crypto.ReadPublicKey;
 import static adjoint.uplink_sdk.client.Crypto.SaveKeyToFile;
 import static adjoint.uplink_sdk.client.Crypto.DeriveAccountAddress;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -35,7 +37,6 @@ import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
 import java.text.ParseException;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -43,7 +44,7 @@ public class UplinkExample {
 
   public static void main(String[] args) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, ParseException, IOException, FileNotFoundException, InvalidKeySpecException, InvalidKeyException, SignatureException, InterruptedException {
     String unsecure = "http://";
-    String secure =  "https://";
+    String secure = "https://";
 
     UplinkSDK uplink = new UplinkSDK(unsecure, "localhost", "8545");
 
@@ -67,13 +68,13 @@ public class UplinkExample {
     PublicKey publicKey = ReadPublicKey(pubKeyBytes);
 
     // Create a New account
-    SortedMap meta  = new TreeMap();
+    SortedMap meta = new TreeMap();
     meta.put("foo", "bar");
     meta.put("shake", "bake");
-    meta.put("a","z");
-    String fromAddress =  null;
+    meta.put("a", "z");
+    String fromAddress = null;
 
-    Response createNewAccount = uplink.CreateAccount("EST", meta, privateKey, publicKey, fromAddress);
+    Response createNewAccount = uplink.createAccount("EST", meta, privateKey, publicKey, fromAddress);
     String AcctAddress = DeriveAccountAddress(publicKey);
     System.out.println("Account: " + AcctAddress);
 
@@ -82,60 +83,63 @@ public class UplinkExample {
 
     // Create a new asset
     int supply = 1000;
-    short precision = 0;
+    Integer precision = null;
 
     Thread.sleep(5000); // wait for account to be created fully
-    Response newAsset = uplink.CreateAsset(privateKey, publicKey, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr);
+    Response newAsset = uplink.createAsset(privateKey, publicKey, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr);
 
     Integer balance = 5;
-    String assetAddr = newAsset.getTag();
+    String assetAddr = newAsset.tag;
     // Wait for asset to be created
     Thread.sleep(5000);
 
+    // Circulate Asset 
+    Response circulated = uplink.circulateAsset(privateKey, fromAddr, assetAddr, balance);
+
     // Transfer Asset
-    Response TransferAsset = uplink.TransferAsset(fromAddr, assetAddr, toAddr, balance, privateKey);
+    Response TransferAsset = uplink.transferAsset(fromAddr, assetAddr, toAddr, balance, privateKey);
 
     // Create a contract
     String Script = "global int x = 0 ;\n" +
-"\n" +
-"transition initial -> get;\n" +
-"transition get -> terminal;\n" +
-"\n" +
-"@get\n" +
-"getX () {\n" +
-"  terminate(\"Now I die.\");\n" +
-"  return x;\n" +
-"}\n" +
-"\n" +
-"@initial\n" +
-"setX (int y) {\n" +
-"  x = 42;\n" +
-"  transitionTo(:get);\n" +
-"  return void;\n" +
-"}";
+        "\n" +
+        "transition initial -> get;\n" +
+        "transition get -> terminal;\n" +
+        "\n" +
+        "@get\n" +
+        "getX () {\n" +
+        "  terminate(\"Now I die.\");\n" +
+        "  return x;\n" +
+        "}\n" +
+        "\n" +
+        "@initial\n" +
+        "setX (int y) {\n" +
+        "  x = 42;\n" +
+        "  transitionTo(:get);\n" +
+        "  return void;\n" +
+        "}";
 
     Thread.sleep(5000); // Wait for block to be created.
-    Response newContract = uplink.CreateContract(privateKey, AcctAddress, Script);
-    String contractAddress = newContract.getTag();
+    Response newContract = uplink.createContract(privateKey, AcctAddress, Script);
+    String contractAddress = newContract.tag;
     Thread.sleep(5000); // Wait for contract to be created.
     // Call Method on deployed Contract
     String contractMethod = "setX";
-    Map arguments  = new HashMap();
+    HashMap arguments = new HashMap();
     arguments.put("int", "12");
-    Response called = uplink.CallContract(privateKey, AcctAddress, contractAddress, contractMethod, arguments);
+    Response called = uplink.callContract(privateKey, AcctAddress, contractAddress, contractMethod, arguments);
 
     // Revoke account - if validating node, cannot revoke account
     // Response revoke = uplink.RevokeAccount(privateKey, fromAddress, fromAddress);
 
     // Queries
-    Response gotContract = uplink.GetContract(contractAddress);
-    Response blocks = uplink.GetBlocks();
-    Response transasctions = uplink.GetTransactions(1);
-    Response peers = uplink.GetPeers();
-    Response accounts = uplink.GetAccounts();
-    Response Assets = uplink.GetAssets();
-    Response gotAccount = uplink.GetAccount(AcctAddress);
-    Response contracts = uplink.GetContracts();
+    Response gotContract = uplink.getContract(contractAddress);
+    Response blocks = uplink.getBlocks();
+    Response transasctions = uplink.getTransactions(1);
+    Response peers = uplink.getPeers();
+    Response accounts = uplink.getAccounts();
+    Response Assets = uplink.getAssets();
+    Response gotAccount = uplink.getAccount(AcctAddress);
+    Response contracts = uplink.getContracts();
   }
 }
 

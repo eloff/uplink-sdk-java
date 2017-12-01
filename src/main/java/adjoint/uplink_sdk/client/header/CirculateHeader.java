@@ -13,45 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
  *
  * @author Adjoint Inc.
  */
-public class AssetType {
-  private String tag;
-  private short contents;
-  public AssetType(String assetType, short precision){
-    this.tag = assetType;
-    this.contents = precision;
+public class CirculateHeader {
+  public final String assetAddr;
+  public final Integer amount;
+
+  public CirculateHeader(String assetAddr, int amount) {
+    this.assetAddr = assetAddr;
+    this.amount = amount;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
-
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the contents
-   */
-  public short getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(short contents) {
-    this.contents = contents;
-  }
 }

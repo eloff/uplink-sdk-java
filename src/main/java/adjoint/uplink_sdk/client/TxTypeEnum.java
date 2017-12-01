@@ -15,37 +15,36 @@
  */
 package adjoint.uplink_sdk.client;
 
+import java.io.*;
+
 /**
- *
  * @author Adjoint Inc.
  */
-public enum TxTypeEnum {
-    CREATE_CONTRACT(1000, "CreateContract"),
-    CREATE_ACCOUNT(1006, "CreateAccount"),
-    CREATE_ASSET(1003, "CreateAsset"),
-    TRANSFER_ASSET(1004, "Transfer"),
-    REVOKE_ACCOUNT(1007, "RevokeAccount"),
-    BIND_ASSET(1005, "BindAsset"),
-    CALL_CONTRACT(1002, "Call"),
-    SYNC_LOCAL(1001, "SyncLocal"),
-    TX_CONTRACT(0, "TxContract"),
-    TX_ASSET(0, "TxAsset"),
-    TX_ACCOUNT(0, "TxAccount");
+public enum TxTypeEnum implements WriteBinary {
+  CREATE_CONTRACT(1000, "CreateContract"),
+  SYNC_LOCAL(1001, "SyncLocal"),
+  CALL_CONTRACT(1002, "Call"),
+  CREATE_ASSET(1003, "CreateAsset"),
+  TRANSFER_ASSET(1004, "Transfer"),
+  CIRCULATE_ASSET(1005, "Circulate"),
+  BIND_ASSET(1006, "BindAsset"),
+  REVOKE_ASSET(1007, "RevokeAsset"),
+  CREATE_ACCOUNT(1008, "CreateAccount"),
+  REVOKE_ACCOUNT(1009, "RevokeAccount"),
+  TX_CONTRACT(0, "TxContract"),
+  TX_ASSET(0, "TxAsset"),
+  TX_ACCOUNT(0, "TxAccount");
 
-    private final Integer code;
-    private final String name;
+  public final Integer value;
+  public final String name;
 
-    private TxTypeEnum(Integer code, String name) {
-        this.code =  code;
-        this.name = name;
-    };
+  TxTypeEnum(Integer value, String name) {
+    this.value = value;
+    this.name = name;
+  }
 
-    public Integer getValue() {
-      return this.code;
-    };
-
-    public String getName(){
-      return this.name;
-    };
+  public void writeBinary(DataOutputStream out) throws IOException {
+    out.writeShort(value);
+  }
 
 }

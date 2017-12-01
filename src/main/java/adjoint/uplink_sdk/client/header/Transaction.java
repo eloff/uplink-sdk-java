@@ -13,19 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client;
+package adjoint.uplink_sdk.client.header;
+
 
 /**
  * @author Adjoint Inc.
  */
-public class Response {
-  public final String tag;
+public class Transaction {
+  public final Long timestamp;
+  public final String signature;
+  public final String origin;
+  public final Type header;
 
-
-  public Response(String tag, String type) {
-    this.tag = tag;
-
+  public Transaction(Long timestamp, String signature, String fromAddr, Type header) {
+    this.timestamp = timestamp;
+    this.signature = signature;
+    this.origin = fromAddr;
+    this.header = header;
   }
-
-
 }

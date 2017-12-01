@@ -29,7 +29,7 @@ public class MakeRequest {
   public MakeRequest(){
     this.client = Client.create();
   }
-  public String Call(String url, String params){
+  String Call(String url, String params){
     String output = "";
 
     try {

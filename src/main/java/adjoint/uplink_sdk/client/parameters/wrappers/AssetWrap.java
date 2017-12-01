@@ -17,7 +17,7 @@
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
 import adjoint.uplink_sdk.client.Response;
-import java.util.ArrayList;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,170 +27,50 @@ import java.util.Map;
  * @author Adjoint Inc.
  */
 
-  public class AssetWrap extends Response{
-    private List<AssetContents> contents = new ArrayList<AssetContents>();
+public class AssetWrap extends Response {
+  public final List<AssetContents> contents;
 
-    public AssetWrap(String tag, List<AssetContents> contents){
-      super(tag,"RPCResp");
-      this.contents = contents;
-    }
-
-  /**
-   * @return the contents
-   */
-  public List<AssetContents> getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(List<AssetContents> contents) {
+  public AssetWrap(String tag, List<AssetContents> contents) {
+    super(tag, "RPCResp");
     this.contents = contents;
   }
 
-    class AssetContents {
-     private String address;
-     private Asset asset;
+  class AssetContents {
+    public final String address;
+    public final Asset asset;
 
-    /**
-     * @return the address
-     */
-    public String getAddress() {
-      return address;
-    }
-
-    /**
-     * @param address the address to set
-     */
-    public void setAddress(String address) {
+    AssetContents(String address, Asset asset) {
       this.address = address;
-    }
-
-    /**
-     * @return the asset
-     */
-    public Asset getAsset() {
-      return asset;
-    }
-
-    /**
-     * @param asset the asset to set
-     */
-    public void setAsset(Asset asset) {
       this.asset = asset;
     }
-   }
-    class Asset{
-     private Integer issuedOn;
-     private String name;
-     private String reference;
-     private Integer supply;
-     private String issuer;
-     private AssetType assetType;
-     private Map<String, Object> holdings = new HashMap<String,Object>();
+  }
 
-    /**
-     * @return the issuedOn
-     */
-    public Integer getIssuedOn() {
-      return issuedOn;
-    }
+  class Asset {
+    public final Integer issuedOn;
+    public final String name;
+    public final String reference;
+    public final Integer supply;
+    public final String issuer;
+    public final AssetType assetType;
+    public final Map<String, Object> holdings = new HashMap<String, Object>();
 
-    /**
-     * @param issuedOn the issuedOn to set
-     */
-    public void setIssuedOn(Integer issuedOn) {
+    Asset(Integer issuedOn, String name, String reference, Integer supply, String issuer, AssetType assetType) {
       this.issuedOn = issuedOn;
-    }
-
-    /**
-     * @return the name
-     */
-    public String getName() {
-      return name;
-    }
-
-    /**
-     * @param name the name to set
-     */
-    public void setName(String name) {
       this.name = name;
-    }
-
-    /**
-     * @return the reference
-     */
-    public String getReference() {
-      return reference;
-    }
-
-    /**
-     * @param reference the reference to set
-     */
-    public void setReference(String reference) {
       this.reference = reference;
-    }
-
-    /**
-     * @return the supply
-     */
-    public Integer getSupply() {
-      return supply;
-    }
-
-    /**
-     * @param supply the supply to set
-     */
-    public void setSupply(Integer supply) {
       this.supply = supply;
-    }
-
-    /**
-     * @return the issuer
-     */
-    public String getIssuer() {
-      return issuer;
-    }
-
-    /**
-     * @param issuer the issuer to set
-     */
-    public void setIssuer(String issuer) {
       this.issuer = issuer;
-    }
-
-    /**
-     * @return the assetType
-     */
-    public AssetType getAssetType() {
-      return assetType;
-    }
-
-    /**
-     * @param assetType the assetType to set
-     */
-    public void setAssetType(AssetType assetType) {
       this.assetType = assetType;
     }
+  }
 
-    /**
-     * @return the holdings
-     */
-    public Map<String, Object> getHoldings() {
-      return holdings;
-    }
+  class AssetType {
+    public final String type;
+    public final Integer precision;
 
-    /**
-     * @param holdings the holdings to set
-     */
-    public void setHoldings(Map<String, Object> holdings) {
-      this.holdings = holdings;
+    AssetType(String type, Integer precision) {
+      this.type = type;
+      this.precision = precision;
     }
-    }
-
-    class AssetType{
-      private String type;
-      private transient Integer precision;
-    }
- }
+  }
+}

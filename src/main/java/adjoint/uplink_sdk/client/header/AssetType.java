@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client;
+package adjoint.uplink_sdk.client.header;
 
 /**
  * @author Adjoint Inc.
  */
-public class Response {
+public class AssetType {
   public final String tag;
+  public final Integer contents;
 
-
-  public Response(String tag, String type) {
-    this.tag = tag;
-
+  public AssetType(String assetType, Integer precision) {
+    this.tag = assetType;
+    this.contents = precision;
   }
-
-
 }

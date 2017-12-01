@@ -16,116 +16,39 @@
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
 import adjoint.uplink_sdk.client.Response;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+
 import java.util.Map;
+
 /**
- *
  * @author Adjoint Inc.
  */
 public class AccountWrap extends Response {
-  private AccountContent contents;
-  
-  public AccountWrap(String tag, AccountContent contents){
+  public final AccountContent contents;
+
+  public AccountWrap(String tag, AccountContent contents) {
     super(tag, "RPCResp");
     this.contents = contents;
   }
 
-  /**
-   * @return the contents
-   */
-  public AccountContent getContents() {
-    return contents;
-  }
+  class AccountContent {
+    public final String publicKey;
+    public final String address;
+    public final Integer nodeKey;
+    public final String timezone;
+    public final Map<String, Object> metadata;
 
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(AccountContent contents) {
-    this.contents = contents;
-  }
-
-  class AccountContent{
-    private String publicKey;
-    private String address;
-    private Integer nodeKey;
-    private String timezone;
-    private Map<String, Object> metadata = new HashMap<String,Object>();
-
-    @Override
-    public String toString(){
-      return getNodeKey() + getPublicKey() + getAddress() + getTimezone();
-    }
-
-    /**
-     * @return the publicKey
-     */
-    public String getPublicKey() {
-      return publicKey;
-    }
-
-    /**
-     * @param publicKey the publicKey to set
-     */
-    public void setPublicKey(String publicKey) {
+    AccountContent(String publicKey, String address, Integer nodeKey, String timezone, Map<String, Object> metadata) {
       this.publicKey = publicKey;
-    }
-
-    /**
-     * @return the address
-     */
-    public String getAddress() {
-      return address;
-    }
-
-    /**
-     * @param address the address to set
-     */
-    public void setAddress(String address) {
       this.address = address;
-    }
-
-    /**
-     * @return the nodeKey
-     */
-    public Integer getNodeKey() {
-      return nodeKey;
-    }
-
-    /**
-     * @param nodeKey the nodeKey to set
-     */
-    public void setNodeKey(Integer nodeKey) {
       this.nodeKey = nodeKey;
-    }
-
-    /**
-     * @return the timezone
-     */
-    public String getTimezone() {
-      return timezone;
-    }
-
-    /**
-     * @param timezone the timezone to set
-     */
-    public void setTimezone(String timezone) {
       this.timezone = timezone;
-    }
-
-    /**
-     * @return the metadata
-     */
-    public Map<String, Object> getMetadata() {
-      return metadata;
-    }
-
-    /**
-     * @param metadata the metadata to set
-     */
-    public void setMetadata(Map<String, Object> metadata) {
       this.metadata = metadata;
     }
+
+    @Override
+    public String toString() {
+      return nodeKey + publicKey + address + timezone;
+    }
+
   }
 }

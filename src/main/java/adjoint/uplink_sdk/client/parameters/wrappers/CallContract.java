@@ -18,90 +18,26 @@ package adjoint.uplink_sdk.client.parameters.wrappers;
 import java.util.List;
 
 /**
- *
  * @author Adjoint Inc.
  */
 
 public class CallContract extends TxTypeHeader {
-  private String tag;
-  private CallBody contents;
+  public final CallBody contents;
 
-  public CallContract(String tag, CallBody contents){
+  public CallContract(String tag, CallBody contents) {
     super(tag, "Call");
     this.contents = contents;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
+  public final class CallBody {
+    public final String address;
+    public final String method;
+    public final List args;
 
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
 
-  /**
-   * @return the contents
-   */
-  public CallBody getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(CallBody contents) {
-    this.contents = contents;
-  }
-  private class CallBody{
-      private String address;
-      private String method;
-      private List args;
-
-    /**
-     * @return the address
-     */
-    public String getAddress() {
-      return address;
-    }
-
-    /**
-     * @param address the address to set
-     */
-    public void setAddress(String address) {
+    public CallBody(String address, String method, List args) {
       this.address = address;
-    }
-
-    /**
-     * @return the method
-     */
-    public String getMethod() {
-      return method;
-    }
-
-    /**
-     * @param method the method to set
-     */
-    public void setMethod(String method) {
       this.method = method;
-    }
-
-    /**
-     * @return the args
-     */
-    public List getArgs() {
-      return args;
-    }
-
-    /**
-     * @param args the args to set
-     */
-    public void setArgs(List args) {
       this.args = args;
     }
   }

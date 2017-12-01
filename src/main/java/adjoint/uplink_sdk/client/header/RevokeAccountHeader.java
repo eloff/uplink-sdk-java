@@ -13,46 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class Actions<T>{
-  private String tag;
-  private Object contents;
+public class RevokeAccountHeader {
+  public final String address;
 
-  public Actions(String tag, Object contents) {
-    this.tag = tag;
-    this.contents = contents;
+  public RevokeAccountHeader(String acctAddress) {
+    this.address = acctAddress;
   }
 
-  /**
-   * @return the tag
-   */
-  public String getTag() {
-    return tag;
-  }
-
-  /**
-   * @param tag the tag to set
-   */
-  public void setTag(String tag) {
-    this.tag = tag;
-  }
-
-  /**
-   * @return the contents
-   */
-  public Object getContents() {
-    return contents;
-  }
-
-  /**
-   * @param contents the contents to set
-   */
-  public void setContents(Object contents) {
-    this.contents = contents;
-  }
 }

@@ -13,30 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package adjoint.uplink_sdk.client.parameters;
+package adjoint.uplink_sdk.client.header;
 
 /**
- *
  * @author Adjoint Inc.
  */
-public class SyncLocalHeader {
-  private String contract;
-  
-  public SyncLocalHeader(String contract){
-    this.contract = contract;
+public class Type {
+  public final String tag;
+  public final Actions contents;
+
+  public Type(String tag, Actions contents) {
+    this.tag = tag;
+    this.contents = contents;
   }
 
-  /**
-   * @return the contract
-   */
-  public String getContract() {
-    return contract;
-  }
-
-  /**
-   * @param contract the contract to set
-   */
-  public void setContract(String contract) {
-    this.contract = contract;
-  }
 }
