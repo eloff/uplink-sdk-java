@@ -11,8 +11,9 @@ Java SDK
 Installation
 ------------
 
-Download and import ``uplink_sdk-1.0.jar`` to the project's dependencies or as
-Maven users add the following to ``pom.xml``:
+Download and import [``uplink_sdk-1.1.jar``](https://github.com/adjoint-io/uplink-sdk-java/releases/download/1.1/uplink_sdk-1.1.jar)
+to the project's dependencies or as Maven users add the following to
+``pom.xml``:
 
 ```xml 
 <dependencies>
