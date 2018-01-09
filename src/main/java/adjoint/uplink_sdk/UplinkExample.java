@@ -19,8 +19,7 @@ import adjoint.uplink_sdk.client.*;
 
 import static adjoint.uplink_sdk.client.Crypto.GenerateKeys;
 import static adjoint.uplink_sdk.client.Crypto.ReadKeyFromFile;
-import static adjoint.uplink_sdk.client.Crypto.ReadPrivateKey;
-import static adjoint.uplink_sdk.client.Crypto.ReadPublicKey;
+import static adjoint.uplink_sdk.client.Crypto.ReadKey;
 import static adjoint.uplink_sdk.client.Crypto.SaveKeyToFile;
 import static adjoint.uplink_sdk.client.Crypto.DeriveAccountAddress;
 
@@ -42,7 +41,7 @@ import java.util.TreeMap;
 
 public class UplinkExample {
 
-  public static void main(String[] args) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, ParseException, IOException, FileNotFoundException, InvalidKeySpecException, InvalidKeyException, SignatureException, InterruptedException {
+  public static void main(String[] args) throws NoSuchAlgorithmException, InvalidAlgorithmParameterException, NoSuchProviderException, ParseException, IOException, FileNotFoundException, InvalidKeySpecException, InvalidKeyException, SignatureException, InterruptedException, Exception {
     String unsecure = "http://";
     String secure = "https://";
 
@@ -56,16 +55,14 @@ public class UplinkExample {
     byte[] bytePriv = priv.getEncoded();
     byte[] bytePub = pub.getEncoded();
 
-    // To save keys
-    SaveKeyToFile(bytePriv, "private", "private");
-    SaveKeyToFile(bytePub, "public", "public");
+    // To save key
+    SaveKeyToFile(priv, "private", "private");
 
     // To read saved keys
-    byte[] keyBytes = ReadKeyFromFile("private.pem");
-    byte[] pubKeyBytes = ReadKeyFromFile("public.pem");
+    String keyContents = ReadKeyFromFile("private.pem");
 
-    PrivateKey privateKey = ReadPrivateKey(keyBytes);
-    PublicKey publicKey = ReadPublicKey(pubKeyBytes);
+    PrivateKey privateKey = ReadKey(keyContents).getPrivate();
+    PublicKey publicKey = ReadKey(keyContents).getPublic();
 
     // Create a New account
     SortedMap meta = new TreeMap();
@@ -74,8 +71,8 @@ public class UplinkExample {
     meta.put("a", "z");
     String fromAddress = null;
 
-    Response createNewAccount = uplink.createAccount("EST", meta, privateKey, publicKey, fromAddress);
-    String AcctAddress = DeriveAccountAddress(publicKey);
+    Response createNewAccount = uplink.createAccount("EST", meta, privateKey, pub, fromAddress);
+    String AcctAddress = DeriveAccountAddress(pub);
     System.out.println("Account: " + AcctAddress);
 
     String fromAddr = AcctAddress;
@@ -86,7 +83,7 @@ public class UplinkExample {
     Integer precision = null;
 
     Thread.sleep(5000); // wait for account to be created fully
-    Response newAsset = uplink.createAsset(privateKey, publicKey, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr);
+    Response newAsset = uplink.createAsset(privateKey, pub, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr);
 
     Integer balance = 5;
     String assetAddr = newAsset.tag;

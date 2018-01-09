@@ -10,8 +10,13 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.math.BigInteger;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -30,10 +35,10 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
-
 import org.apache.commons.io.FileUtils;
+import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Sequence;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.io.pem.PemObject;
 import org.bouncycastle.util.io.pem.PemObjectGenerator;
@@ -42,6 +47,13 @@ import org.bouncycastle.util.io.pem.PemWriter;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import org.bouncycastle.crypto.digests.SHA3Digest;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.asn1.ASN1Object;
+import org.bouncycastle.asn1.x9.X9ObjectIdentifiers;
+import org.bouncycastle.asn1.pkcs.PrivateKeyInfo; // as defined by PKCS8
+import org.bouncycastle.asn1.x9.ECNamedCurveTable;
+import org.bouncycastle.jce.spec.ECNamedCurveParameterSpec;
+import org.bouncycastle.jce.spec.ECNamedCurveSpec;
+
 
 public class Crypto {
   public static String DeriveContractAddress(String script) {
@@ -126,35 +138,30 @@ public class Crypto {
   }
 
 
-  public static byte[] ReadKeyFromFile(String file) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
+  public static String ReadKeyFromFile(String file) throws NoSuchAlgorithmException, FileNotFoundException, IOException {
     File pemFile = new File(file);
-    PemReader pemReader = new PemReader(new InputStreamReader(new FileInputStream(pemFile)));
-    return pemReader.readPemObject().getContent();
+    String contents = new String(Files.readAllBytes(Paths.get(file)));
+    return contents;
   }
 
-  public static PrivateKey ReadPrivateKey(byte[] keyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-    Provider BC = new BouncyCastleProvider();
-    KeyFactory kf = KeyFactory.getInstance("ECDSA", BC);
-
-    KeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
-    return kf.generatePrivate(spec);
+  public static KeyPair ReadKey(String keyContents) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
+    Reader rdr = new StringReader(keyContents);
+    Object parsed = new org.bouncycastle.openssl.PEMParser(rdr).readObject();
+    KeyPair pair = new org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter().getKeyPair((org.bouncycastle.openssl.PEMKeyPair)parsed);
+    return pair;
   }
 
-  public static PublicKey ReadPublicKey(byte[] keyBytes) throws NoSuchAlgorithmException, InvalidKeySpecException, IOException {
-    Provider BC = new BouncyCastleProvider();
-    KeyFactory kf = KeyFactory.getInstance("ECDSA", BC);
-
-    KeySpec spec = new X509EncodedKeySpec(keyBytes);
-    return kf.generatePublic(spec);
-  }
-
-  public static void SaveKeyToFile(byte[] Key, String filename, String keyType) throws IOException {
+  public static void SaveKeyToFile(PrivateKey Key, String filename, String keyType) throws IOException, NoSuchAlgorithmException, NoSuchAlgorithmException, InvalidKeySpecException, Exception {
     StringWriter stringWriter = new StringWriter();
-    PemWriter pemWriter = new PemWriter(stringWriter);
-    PemObjectGenerator pemObject = new PemObject("EC " + keyType + " Key", Key);
-    pemWriter.writeObject(pemObject);
-    pemWriter.flush();
-    pemWriter.close();
+    PemWriter w = new PemWriter(stringWriter);
+    PrivateKeyInfo i = PrivateKeyInfo.getInstance(ASN1Sequence.getInstance(Key.getEncoded()));
+    if( ! i.getPrivateKeyAlgorithm().getAlgorithm().equals(X9ObjectIdentifiers.id_ecPublicKey) ){
+        throw new Exception ("not EC private key");
+    }
+    ASN1Object o = (ASN1Object) i.parsePrivateKey();
+    w.writeObject (new PemObject ("EC PRIVATE KEY", o.getEncoded("DER")));
+    w.flush();
+    w.close();
     String privateKeyString = stringWriter.toString();
     FileUtils.writeStringToFile(new File(filename + ".pem"), privateKeyString);
   }
