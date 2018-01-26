@@ -90,7 +90,7 @@ public class UplinkExample {
     // Wait for asset to be created
     Thread.sleep(5000);
 
-    // Circulate Asset 
+    // Circulate Asset
     Response circulated = uplink.circulateAsset(privateKey, fromAddr, assetAddr, balance);
 
     // Transfer Asset
