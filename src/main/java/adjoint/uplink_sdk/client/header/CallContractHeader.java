@@ -19,6 +19,7 @@ import adjoint.uplink_sdk.client.*;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.math.BigInteger;
 import java.time.DayOfWeek;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -52,7 +53,7 @@ public class CallContractHeader implements WriteBinary {
     out.writeBytes(method);
     out.writeLong(args.size());
 
-    args.forEach((obj) -> {
+    args.forEach((Map<String, String> obj) -> {
       String type = obj.get("tag");
 
       try {
@@ -119,7 +120,34 @@ public class CallContractHeader implements WriteBinary {
           out.writeLong(second);
           out.writeLong(tzoffset);
           out.writeLong(dayNum);
+        }
+        if (FCLEnum.VFIXED.name.equals(type)) {
+          String value = obj.get("contents");
+          double doubleVal = Double.parseDouble((String.valueOf(value)));
+          int integerPlaces = value.indexOf('.');
+          int decimalPlaces = value.length() - integerPlaces - 1;
+          int fullInteger = (int) (doubleVal * decimalPlaces);
+          int sign = Integer.signum( fullInteger );
+          if(sign == 0 || sign == 1) {
+            sign = 1;
+          }
+          else{
+            sign = -1;
+          };
+          byte[] intArray = BigInteger.valueOf(fullInteger).toByteArray();
 
+          out.writeByte(FCLEnum.VFIXED.value);
+          out.writeByte(decimalPlaces -1);
+          out.writeByte(sign);
+          out.writeShort(intArray.length);
+          out.write(intArray);
+
+        }
+        if (FCLEnum.VENUM.name.equals(type)) {
+          int vlen = obj.get("contents").length();
+          out.writeByte(FCLEnum.VENUM.value);
+          out.writeShort(vlen);
+          out.writeBytes(obj.get("contents"));
         }
       } catch (IOException ex) {
         Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);

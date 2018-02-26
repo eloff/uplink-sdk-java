@@ -72,6 +72,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -92,14 +93,17 @@ public class UplinkSDK {
 
   /**
    * @author Adjoint Inc.
+   * @link https://www.adjoint.io/docs/rpc.html#endpoints
    */
   public UplinkSDK(String protocol, String address, String port) {
     this.url = protocol + address + ":" + port; // address is "https://xx.xxx.xxx", port is "1234"
   }
 
-  /*======================*/
-  //   READ
-  /*======================*/
+  /**
+   * Returns all blocks and associated transactions on the chain.
+   * @returns all blocks
+   * @url /blocks
+   */
   public Response getBlocks() {
 
     String url = this.url + "/blocks";
@@ -131,6 +135,11 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns all available peers (Uplink nodes).
+   * @returns all peers
+   * @url /peers
+   */
   public Response getPeers() {
     String url = this.url + "/peers";
     String params = "";
@@ -143,6 +152,11 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns all accounts on the chain.
+   * @return all accounts
+   * @url /accounts
+   */
   public Response getAccounts() {
     String url = this.url + "/accounts";
     String params = "";
@@ -157,6 +171,12 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns a specific account and its details
+   * @param Address an account address
+   * @return account with specified address
+   * @url /accounts/{address}
+   */
   public Response getAccount(String Address) {
     String url = this.url + "/accounts/" + Address;
     String params = "";
@@ -171,6 +191,11 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns all assets on chain.
+   * @return all assets
+   * @url /assets
+   */
   public Response getAssets() {
     String url = this.url + "/assets";
     String params = "";
@@ -185,6 +210,12 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns all transactions associated to a specific block.
+   * @param BlockId block identifier
+   * @return transactions in block
+   * @url /transactions/{BlockId}
+   */
   public Response getTransactions(int BlockId) {
     String url = this.url + "/transactions/" + BlockId;
     String params = "";
@@ -206,6 +237,11 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Returns all contracts on the chain.
+   * @return all contracts
+   * @url /contracts
+   */
   public Response getContracts() {
     String url = this.url + "/contracts";
     String params = "";
@@ -221,6 +257,12 @@ public class UplinkSDK {
 
   }
 
+  /**
+   * Returns a specific contract and its associated details.
+   * @param address contract address
+   * @return a specific contract
+   * @url /contracts/{contract_address}
+   */
   public Response getContract(String address) {
     String url = this.url + "/contracts/" + address;
 
@@ -236,9 +278,16 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
-  /*======================*/
-  //   Create
-  /*======================*/
+  /**
+   * Create an account.
+   * @param Timezone Timezone of account
+   * @param meta Metadata map of custom strings
+   * @param privateKey Private key for new account
+   * @param publicKey Public key for new account
+   * @param fromAddress derived from public key of new account
+   * @return new account address - will be the same as fromAddress
+   * @url /
+   */
   public Response createAccount(String Timezone, Map<String, String> meta, PrivateKey privateKey, PublicKey publicKey, String fromAddress) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     long timestamp = System.currentTimeMillis() * 1000;
@@ -297,12 +346,26 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
-  public Response createAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
+  /**
+   * Create an asset.
+   * @param privateKey Private key of account creating asset
+   * @param publicKey Public key of account creating asset
+   * @param fromAddr Address of Account creating asset
+   * @param name Name of new asset
+   * @param supply Supply of new asset
+   * @param assetType Discrete, Fractional, or Binary
+   * @param precision Precision of Fractional assets
+   * @param reference Token, Security, USD, GBP, CHF, EUR
+   * @param issuer Address of account creating asset - same as fromAddr
+   * @return new asset address
+   * @url /
+   */
+  public Response createAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer, Map<String, String> meta) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
     String url = this.url + "/";
     long timestamp = System.currentTimeMillis() * 1000;
     AssetType aType = new AssetType(assetType, precision);
     String assetAddr = DeriveAssetAddress(name, issuer, supply, reference, aType, timestamp);
-    CreateAssetHeader aHead = new CreateAssetHeader(name, assetAddr, supply, aType, reference, issuer);
+    CreateAssetHeader aHead = new CreateAssetHeader(name, assetAddr, supply, aType, reference, issuer, meta);
 
     // Prepare Bytes to sign [Txtype, timezone, metadata]
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -341,6 +404,15 @@ public class UplinkSDK {
     }
   }
 
+  /**
+   * Create contract.
+   * @param privateKey Private key of account creating contract
+   * @param fromAddr address of account creating contract
+   * @param script FCL contract code
+   * @param privateKey Private key for new account
+   * @return new contract address
+   * @url /
+   */
   public Response createContract(PrivateKey privateKey, String fromAddr, String script) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.CREATE_CONTRACT.value;
@@ -387,6 +459,15 @@ public class UplinkSDK {
     }
   }
 
+  /**
+   * Transfer asset holdings from one account to another.
+   * @param fromAddr Address of account transferring asset holdings
+   * @param assetAddr Address of asset to transfer
+   * @param toAddr Address of account to transfer asset holdings to
+   * @param balance Amount of asset holdings being transferred
+   * @param privateKey Private key of account doing transfer
+   * @url /
+   */
   public Response transferAsset(String fromAddr, String assetAddr, String toAddr, Integer balance, PrivateKey privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, InvalidKeySpecException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.TRANSFER_ASSET.value;
@@ -431,6 +512,13 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Revoke Account access to ledger. Can only be initiated by the same account to be revoked.
+   * @param privateKey Private key of account being revoked
+   * @param fromAddr address of account being revoked
+   * @param acctAddress address of account being revoked
+   * @url /
+   */
   public Response revokeAccount(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.REVOKE_ACCOUNT.value;
@@ -473,7 +561,16 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
-  public Response callContract(PrivateKey privateKey, String fromAddr, String contractAddress, String contractMethod, HashMap<String, String> arguments) throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException {
+  /**
+   * Call contract method.
+   * @param privateKey Private key of account calling contract method
+   * @param fromAddr Address of account calling contract method
+   * @param contractAddress Address of contract being called
+   * @param contractMethod Contract method being called
+   * @param arguments HashMap of arguments to method
+   * @url /
+   */
+  public Response callContract(PrivateKey privateKey, String fromAddr, String contractAddress, String contractMethod, HashMap<String, String> arguments) throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, Exception {
     String url = this.url + "/";
     long timestamp = System.currentTimeMillis() * 1000;
 
@@ -534,18 +631,48 @@ public class UplinkSDK {
         msgArg.put(GeneralEnum.CONTENTS.name, value.toString());
         argsList.add(msgArg);
       }
+      if (FCLEnum.VFIXED.human.equals(type)) {
+        double doubleVal = Double.parseDouble(value);
+        int integerPlaces = value.indexOf('.');
+        int decimalPlaces = value.length() - integerPlaces - 1;
+
+        if(decimalPlaces > 6){
+          try {
+            throw new Exception("Too many decimal places. Fixed type must be 6 places of precision or less.");
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+        if(decimalPlaces <= 0){
+          try {
+            throw new Exception("Fixed type should have more than 0 decimal places.");
+          } catch (Exception e) {
+            e.printStackTrace();
+          }
+        }
+
+        Map msgArg = new HashMap();
+        msgArg.put(GeneralEnum.TAG.name, FCLEnum.VFIXED.name + Integer.toString(decimalPlaces));
+        msgArg.put(GeneralEnum.CONTENTS.name, doubleVal);
+        argsList.add(msgArg);
+      }
+      if (FCLEnum.VENUM.human.equals(type)) {
+        Map msgArg = new HashMap();
+        msgArg.put(GeneralEnum.TAG.name, FCLEnum.VENUM.name);
+        msgArg.put(GeneralEnum.CONTENTS.name, value);
+        argsList.add(msgArg);
+      }
+
     });
 
     // Prepare Bytes to sign
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-
     CallContractHeader aHead = new CallContractHeader(contractAddress, contractMethod, argsList);
     aHead.writeBinary(stream);
 
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
-
     // Sign Bytes
     byte[] signedBytes = SignBytes(convertedBytes, privateKey);
     String signature = Sign(signedBytes);
@@ -570,11 +697,18 @@ public class UplinkSDK {
     return gson.fromJson(output, Response.class);
   }
 
+  /**
+   * Circulate asset holdings to account that created asset.
+   * @param privateKey Private key of account circulating asset
+   * @param fromAddr Account address circulating asset
+   * @param assetAddress Asset address being circulated
+   * @param amount Amount of holdings being circulated
+   * @url /
+   */
   public Response circulateAsset(PrivateKey privateKey, String fromAddr, String assetAddress, int amount) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.CIRCULATE_ASSET.value;
     long timestamp = System.currentTimeMillis() * 1000;
-
     // b58 decode address
     byte[] byteAssetAddress = Base58convert.decode(assetAddress);
 
@@ -611,51 +745,11 @@ public class UplinkSDK {
     return gson.fromJson(output, ResponseOkay.class);
   }
 
-  // Not Implemented
-  public Response BindAsset(PrivateKey privateKey, String fromAddr, String contractAddress, String assetAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
-    String url = this.url + "/";
-    Integer TxType = TxTypeEnum.BIND_ASSET.value;
-    long timestamp = System.currentTimeMillis() * 1000;
-
-    // b58 decode address
-    byte[] byteContractAddress = Base58convert.decode(contractAddress);
-    byte[] byteAssetAddress = Base58convert.decode(assetAddress);
-
-    // Prepare Bytes to sign
-    final ByteArrayOutputStream data = new ByteArrayOutputStream();
-    final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
-    stream.write(byteContractAddress);
-    stream.write(byteAssetAddress);
-    stream.flush();
-    byte[] convertedBytes = data.toByteArray();
-
-    // Sign Bytes
-    byte[] signedBytes = SignBytes(convertedBytes, privateKey);
-    String signature = Sign(signedBytes);
-    String toAddr = null;
-    // Serialize parameters
-    BindAssetHeader aHead = new BindAssetHeader(contractAddress, assetAddress);
-    Actions actions = new Actions("Bind", aHead);
-    Type type = new Type("TxAsset", actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
-    TransactionParams tx = new TransactionParams(trans);
-
-    // Make it a json string
-    String params = gson.toJson(tx, TransactionParams.class);
-
-    // Call the Server
-    String output = request.Call(url, params);
-
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AssetWrap.class, ResponseEnum.RPC_RESP.name);
-
-    Gson gson = new GsonBuilder()
-        .registerTypeAdapterFactory(adapter)
-        .create();
-
-    return gson.fromJson(output, Response.class);
-  }
-
+  /**
+   * Handles json for successful or unsuccessful response types.
+   * @param responseTypeClass Wrapper java object of response type
+   * @param RespName Response name: RPCResp, RPCRespOK, RPCRespError
+   */
   public RuntimeTypeAdapterFactory<Response> RTAFgenerator(Class responseTypeClass, String RespName) {
     return (RuntimeTypeAdapterFactory<Response>) RuntimeTypeAdapterFactory
         .of(Response.class, GeneralEnum.TAG.name)
@@ -664,7 +758,11 @@ public class UplinkSDK {
   }
 
   private static final char[] HEXCHARS_LC = "0123456789abcdef".toCharArray();
-
+  /**
+   * Utility function for debugging binary serialization of transaction headers.
+   * @param buf bytes to dump into hexadecimal format
+   * @returns hexadecimal string
+   */
   public String HexDump(final byte[] buf) {
     final StringBuffer sb = new StringBuffer(3 * buf.length);
     for (int i = 0; i < 0 + buf.length; ++i) {

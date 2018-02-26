@@ -17,10 +17,14 @@ package adjoint.uplink_sdk.client.header;
 
 import adjoint.uplink_sdk.client.Base58convert;
 import adjoint.uplink_sdk.client.TxTypeEnum;
+import adjoint.uplink_sdk.client.UplinkSDK;
 import adjoint.uplink_sdk.client.WriteBinary;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author Adjoint Inc.
@@ -32,14 +36,17 @@ public class CreateAssetHeader implements WriteBinary {
   public final AssetType assetType;
   public final String reference;
   public final String issuer;
+  public final Map<String, String> metadata;
 
-  public CreateAssetHeader(String Name, String assetAddr, Integer Supply, AssetType assetType, String reference, String issuer) {
+
+  public CreateAssetHeader(String Name, String assetAddr, Integer Supply, AssetType assetType, String reference, String issuer, Map<String, String> meta) {
     this.assetName = Name;
     this.assetAddr = assetAddr;
     this.supply = Supply;
     this.assetType = assetType;
     this.reference = reference;
     this.issuer = issuer;
+    this.metadata = meta;
   }
 
 
@@ -56,6 +63,22 @@ public class CreateAssetHeader implements WriteBinary {
     out.writeBytes(assetType.tag);
     if ("Fractional".equals(assetType.tag)) {
       out.writeLong(assetType.contents);
+    }
+
+    if (!metadata.isEmpty()) {
+      out.writeShort(metadata.size());
+      metadata.forEach((k, v) -> {
+        try {
+          out.writeShort(k.length());
+          out.writeBytes(k);
+          out.writeShort(v.length());
+          out.writeBytes(v);
+        } catch (IOException ex) {
+          Logger.getLogger(UplinkSDK.class.getName()).log(Level.SEVERE, null, ex);
+        }
+      });
+    } else {
+      out.writeShort(0);
     }
 
   }

@@ -11,9 +11,8 @@ Java SDK
 Installation
 ------------
 
-Download and import [``uplink_sdk-1.2.jar``](https://github.com/adjoint-io/uplink-sdk-java/releases/download/1.2/uplink_sdk-1.2.jar)
-to the project's dependencies or as Maven users add the following to
-``pom.xml``:
+Download and import ``uplink_sdk-1.0.jar`` to the project's dependencies or as
+Maven users add the following to ``pom.xml``:
 
 ```xml 
 <dependencies>
@@ -170,20 +169,18 @@ Contract creation requires your private key, account address and script.
 String fromAddress = yourAccountAddress
 String script = "global int x = 0 ;\n" +
 "\n" +
-"transition initial -> get;\n" +
-"transition get -> terminal;\n" +
+"transition initial -> set;\n" +
+"transition set -> terminal;\n" +
 "\n" +
-"@get\n" +
-"getX () {\n" +
+"@set\n" +
+"end () {\n" +
 "  terminate(\"Now I die.\");\n" +
-"  return x;\n" +
 "}\n" +
 "\n" +
 "@initial\n" +
 "setX (int y) {\n" +
 "  x = 42;\n" +
-"  transitionTo(:get);\n" +
-"  return void;\n" +
+"  transitionTo(:set);\n" +
 "}";
 
 Response newContract = uplink.CreateContract(privateKey, fromAddress, script);

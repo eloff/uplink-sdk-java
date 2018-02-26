@@ -23,6 +23,7 @@ import java.io.*;
 public enum FCLEnum implements WriteBinary {
   VINT(0, "VInt", "int"),
   VFLOAT(2, "VFloat", "float"),
+  VFIXED(3, "VFixed", "fixed"),
   VBOOL(4, "VBool", "bool"),
   VADDRESS(5, "VAddress", "address"),
   VACCOUNT(6, "VAccount", "account"),
@@ -33,6 +34,7 @@ public enum FCLEnum implements WriteBinary {
   VVOID(11, "VVoid", "void"),
   VDATETIME(12, "VDateTime", "datetime"),
   VTIMEDELTA(13, "VTimeDelta", "timedelta"),
+  VENUM(14, "VEnum", "enum"),
   VUNDEFINED(15, "VUndefined", "undefined");
 
   public final Integer value;

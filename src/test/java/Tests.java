@@ -135,7 +135,7 @@ public class Tests {
     Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
 
     Thread.sleep(5000);
-    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress, meta);
 
     assertEquals(Response.class, asset.getClass());
   }
@@ -154,7 +154,7 @@ public class Tests {
     PublicKey publicKey = this.pair.getPublic();
     Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
     Thread.sleep(4000);
-    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress, meta);
     assetAddress = asset.tag;
     Thread.sleep(4000);
     int amount = 10;
@@ -166,20 +166,18 @@ public class Tests {
   public void TestCreateContract() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InterruptedException, InvalidAlgorithmParameterException {
     String Script = "global int x = 0 ;\n" +
         "\n" +
-        "transition initial -> get;\n" +
-        "transition get -> terminal;\n" +
+        "transition initial -> set;\n" +
+        "transition set -> terminal;\n" +
         "\n" +
-        "@get\n" +
-        "getX () {\n" +
+        "@set\n" +
+        "end () {\n" +
         "  terminate(\"Now I die.\");\n" +
-        "  return x;\n" +
         "}\n" +
         "\n" +
         "@initial\n" +
         "setX (int y) {\n" +
         "  x = 42;\n" +
-        "  transitionTo(:get);\n" +
-        "  return void;\n" +
+        "  transitionTo(:set);\n" +
         "}";
 
     SortedMap<String, String> meta = new TreeMap<String, String>();
@@ -217,7 +215,7 @@ public class Tests {
     Thread.sleep(5000);
     int supply = 3;
     Integer precision = 0;
-    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress);
+    Response asset = uplink.createAsset(privateKey, publicKey, accountAddress, "testCoin", supply, "Discrete", precision, "Token", accountAddress, meta);
     assetAddress = asset.tag;
 
     Thread.sleep(5000);
@@ -226,49 +224,47 @@ public class Tests {
   }
 
   @Test
-  public void TestCallContract() throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, InterruptedException, InvalidAlgorithmParameterException {
-    String Script = "transition initial -> end;\n" +
+  public void TestCallContract() throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, InterruptedException, InvalidAlgorithmParameterException, Exception {
+    String Script =
+	"enum testEnum { Foo, Bar };\n" +
+	"transition initial -> end;\n" +
         "transition end -> terminal;\n" +
         "@initial\n" +
         "fn_int(int a) {\n" +
-        "  return void;\n" +
         "}\n" +
         "@initial\n" +
         "fn_float(float b) {\n" +
-        "    return void;\n" +
         "}\n" +
         "@initial\n" +
         "fn_bool(bool x) {\n" +
-        "    return void;\n" +
         "}\n" +
         "@initial\n" +
         "fn_msg(msg c) {\n" +
-        "    return void;\n" +
         "}\n" +
         "@initial\n" +
         "fn_account(account a) {\n" +
-        "    return void;\n" +
         "}\n" +
         "@initial\n" +
-        "fn_asset(asset a) {\n" +
-        "    return void;\n" +
+        "fn_asset(assetDisc a) {\n" +
         "}\n" +
         "@initial\n" +
         "fn_contract(contract e) {\n" +
-        "    return void;\n" +
         "}\n" +
         "@initial\n" +
         "fn_datetime(datetime e) {\n" +
-        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_fixed(fixed5 f) {\n" +
         "}\n" +
         "@initial\n" +
         "fn_void(void a) {\n" +
-        "    return void;\n" +
+        "}\n" +
+        "@initial\n" +
+        "fn_enum(enum testEnum a) {\n" +
         "}\n" +
         "@initial\n" +
         "never_called(void a) {\n" +
         "    transitionTo(:end);\n" +
-        "    return void;\n" +
         "}\n" +
         "@end\n" +
         "end() {\n" +
@@ -297,26 +293,21 @@ public class Tests {
         put("int", "12");
       }
     }));
-
     args.add(new AbstractMap.SimpleEntry<>("fn_float", new HashMap<String, String>() {
       {
         put("float", "12.2");
       }
     }));
-
     args.add(new AbstractMap.SimpleEntry<>("fn_bool", new HashMap<String, String>() {
       {
         put("bool", "True");
       }
     }));
-
-
     args.add(new AbstractMap.SimpleEntry<>("fn_msg", new HashMap<String, String>() {
       {
         put("msg", "Hello World");
       }
     }));
-
     args.add(new AbstractMap.SimpleEntry<>("fn_account", new HashMap<String, String>() {
       {
         put("account", testAddr);
@@ -333,11 +324,20 @@ public class Tests {
       }
     }));
     args.add(new AbstractMap.SimpleEntry<>("fn_datetime", new HashMap<String, String>() {
-        {
+      {
         put("datetime", "2017-11-29T16:50:40+00:00");
       }
     }));
-
+    args.add(new AbstractMap.SimpleEntry<>("fn_fixed", new HashMap<String, String>() {
+      {
+        put("fixed5","6.54321");
+      }
+    }));
+    args.add(new AbstractMap.SimpleEntry<>("fn_enum", new HashMap<String, String>() {
+      {
+        put("enum","Foo");
+      }
+    }));
 
     for (AbstractMap.SimpleEntry<String, HashMap<String, String>> arg : args) {
       Response called = uplink.callContract(privateKey, accountAddress, contractAddress, arg.getKey(), arg.getValue());

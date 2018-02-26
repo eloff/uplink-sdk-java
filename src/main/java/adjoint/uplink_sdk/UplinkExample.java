@@ -83,7 +83,7 @@ public class UplinkExample {
     Integer precision = null;
 
     Thread.sleep(5000); // wait for account to be created fully
-    Response newAsset = uplink.createAsset(privateKey, pub, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr);
+    Response newAsset = uplink.createAsset(privateKey, pub, fromAddr, "testCoin", supply, "Discrete", precision, "Token", fromAddr, meta);
 
     Integer balance = 5;
     String assetAddr = newAsset.tag;
@@ -99,20 +99,18 @@ public class UplinkExample {
     // Create a contract
     String Script = "global int x = 0 ;\n" +
         "\n" +
-        "transition initial -> get;\n" +
-        "transition get -> terminal;\n" +
+        "transition initial -> set;\n" +
+        "transition set -> terminal;\n" +
         "\n" +
-        "@get\n" +
-        "getX () {\n" +
+        "@set\n" +
+        "end () {\n" +
         "  terminate(\"Now I die.\");\n" +
-        "  return x;\n" +
         "}\n" +
         "\n" +
         "@initial\n" +
         "setX (int y) {\n" +
         "  x = 42;\n" +
-        "  transitionTo(:get);\n" +
-        "  return void;\n" +
+        "  transitionTo(:set);\n" +
         "}";
 
     Thread.sleep(5000); // Wait for block to be created.
