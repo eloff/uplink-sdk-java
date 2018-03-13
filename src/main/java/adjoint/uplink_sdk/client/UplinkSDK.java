@@ -336,7 +336,7 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
 
     Gson gson = new GsonBuilder()
         .disableHtmlEscaping()
@@ -388,7 +388,7 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
 
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
@@ -444,7 +444,7 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
 
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
@@ -503,7 +503,7 @@ public class UplinkSDK {
     // Call the Server
     String output = request.Call(url, params);
 
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
 
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
@@ -689,7 +689,7 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
         .create();
@@ -737,7 +737,7 @@ public class UplinkSDK {
 
     // Call the Server
     String output = request.Call(url, params);
-    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_RESP.name);
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(AccountWrap.class, ResponseEnum.RPC_TX_OK.name);
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
         .create();

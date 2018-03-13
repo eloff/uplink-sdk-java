@@ -22,6 +22,7 @@ package adjoint.uplink_sdk.client;
 public enum ResponseEnum {
   RPC_RESP("RPCResp"),
   RPC_RESP_OK("RPCRespOK"),
+  RPC_TX_OK("RPCTransactionOK"),
   RPC_RESP_ERROR("RPCRespError");
 
 
