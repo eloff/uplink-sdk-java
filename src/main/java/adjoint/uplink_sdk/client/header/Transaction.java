@@ -20,13 +20,11 @@ package adjoint.uplink_sdk.client.header;
  * @author Adjoint Inc.
  */
 public class Transaction {
-  public final Long timestamp;
   public final String signature;
   public final String origin;
   public final Type header;
 
-  public Transaction(Long timestamp, String signature, String fromAddr, Type header) {
-    this.timestamp = timestamp;
+  public Transaction(String signature, String fromAddr, Type header) {
     this.signature = signature;
     this.origin = fromAddr;
     this.header = header;

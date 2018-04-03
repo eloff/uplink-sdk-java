@@ -288,9 +288,14 @@ public class UplinkSDK {
    * @return new account address - will be the same as fromAddress
    * @url /
    */
-  public Response createAccount(String Timezone, Map<String, String> meta, PrivateKey privateKey, PublicKey publicKey, String fromAddress) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
+  public Response createAccount(
+      String Timezone,
+      Map<String, String> meta,
+      PrivateKey privateKey,
+      PublicKey publicKey,
+      String fromAddress
+  ) throws IOException, NoSuchAlgorithmException, InvalidAlgorithmParameterException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    long timestamp = System.currentTimeMillis() * 1000;
 
     // Serialization to convert Public key to hex string ========
     String X = ((BCECPublicKey) publicKey).getW().getAffineX().toString();
@@ -329,7 +334,7 @@ public class UplinkSDK {
     //Serialize Parameters
     Actions actions = new Actions(TxTypeEnum.CREATE_ACCOUNT.name, aHead);
     Type type = new Type(TxTypeEnum.TX_ACCOUNT.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, origin, type);
+    Transaction trans = new Transaction(signature, origin, type);
     TransactionParams tx = new TransactionParams(trans);
     // Make it a json string
     String params = gson.toJson(tx, TransactionParams.class);
@@ -362,10 +367,10 @@ public class UplinkSDK {
    */
   public Response createAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer, Map<String, String> meta) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
     String url = this.url + "/";
-    long timestamp = System.currentTimeMillis() * 1000;
     AssetType aType = new AssetType(assetType, precision);
-    String assetAddr = DeriveAssetAddress(name, issuer, supply, reference, aType, timestamp);
-    CreateAssetHeader aHead = new CreateAssetHeader(name, assetAddr, supply, aType, reference, issuer, meta);
+    String assetAddr = DeriveAssetAddress(name, issuer, supply, reference, aType);
+    CreateAssetHeader aHead =
+        new CreateAssetHeader(name, supply, aType, reference, issuer, meta);
 
     // Prepare Bytes to sign [Txtype, timezone, metadata]
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -380,7 +385,7 @@ public class UplinkSDK {
 
     Actions actions = new Actions(TxTypeEnum.CREATE_ASSET.name, aHead);
     Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
 
@@ -413,13 +418,21 @@ public class UplinkSDK {
    * @return new contract address
    * @url /
    */
-  public Response createContract(PrivateKey privateKey, String fromAddr, String script) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+  public Response createContract(
+      PrivateKey privateKey,
+      String fromAddr,
+      String script
+  ) throws
+      IOException,
+      NoSuchAlgorithmException,
+      InvalidKeyException,
+      SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.CREATE_CONTRACT.value;
-    long timestamp = System.currentTimeMillis() * 1000;
 
     String contractAddress = DeriveContractAddress(script);
-    CreateContractHeader aHead = new CreateContractHeader(script, fromAddr, contractAddress, timestamp);
+    CreateContractHeader aHead =
+        new CreateContractHeader(script, fromAddr, contractAddress);
 
     // Prepare Bytes to sign [Txtype, timezone, metadata]
     ByteArrayOutputStream data = new ByteArrayOutputStream();
@@ -436,7 +449,7 @@ public class UplinkSDK {
     //Serialize
     Actions actions = new Actions(TxTypeEnum.CREATE_CONTRACT.name, aHead);
     Type type = new Type(TxTypeEnum.TX_CONTRACT.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Json to string
@@ -471,7 +484,6 @@ public class UplinkSDK {
   public Response transferAsset(String fromAddr, String assetAddr, String toAddr, Integer balance, PrivateKey privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, InvalidKeySpecException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.TRANSFER_ASSET.value;
-    long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode
     byte[] byteAssetAddr = Base58convert.decode(assetAddr);
@@ -495,7 +507,7 @@ public class UplinkSDK {
     TransferHeader aHead = new TransferHeader(assetAddr, toAddr, balance);
     Actions actions = new Actions(TxTypeEnum.TRANSFER_ASSET.name, aHead);
     Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Json to string
@@ -522,7 +534,6 @@ public class UplinkSDK {
   public Response revokeAccount(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.REVOKE_ACCOUNT.value;
-    long timestamp = System.currentTimeMillis() * 1000;
 
     // b58 decode address
     byte[] byteAcctAddress = Base58convert.decode(acctAddress);
@@ -543,7 +554,7 @@ public class UplinkSDK {
     RevokeAccountHeader aHead = new RevokeAccountHeader(acctAddress);
     Actions actions = new Actions(TxTypeEnum.REVOKE_ACCOUNT.name, aHead);
     Type type = new Type(TxTypeEnum.TX_ACCOUNT.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -572,7 +583,6 @@ public class UplinkSDK {
    */
   public Response callContract(PrivateKey privateKey, String fromAddr, String contractAddress, String contractMethod, HashMap<String, String> arguments) throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, Exception {
     String url = this.url + "/";
-    long timestamp = System.currentTimeMillis() * 1000;
 
     List<Map<String, String>> argsList = new ArrayList<>();
     arguments.forEach((type, value) -> {
@@ -681,7 +691,7 @@ public class UplinkSDK {
     // Serialize parameters
     Actions actions = new Actions(TxTypeEnum.CALL_CONTRACT.name, aHead);
     Type type = new Type(TxTypeEnum.TX_CONTRACT.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string
@@ -708,7 +718,6 @@ public class UplinkSDK {
   public Response circulateAsset(PrivateKey privateKey, String fromAddr, String assetAddress, int amount) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
     Integer TxType = TxTypeEnum.CIRCULATE_ASSET.value;
-    long timestamp = System.currentTimeMillis() * 1000;
     // b58 decode address
     byte[] byteAssetAddress = Base58convert.decode(assetAddress);
 
@@ -729,7 +738,7 @@ public class UplinkSDK {
     CirculateHeader aHead = new CirculateHeader(assetAddress, amount);
     Actions actions = new Actions(TxTypeEnum.CIRCULATE_ASSET.name, aHead);
     Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
-    Transaction trans = new Transaction(timestamp, signature, fromAddr, type);
+    Transaction trans = new Transaction(signature, fromAddr, type);
     TransactionParams tx = new TransactionParams(trans);
 
     // Make it a json string

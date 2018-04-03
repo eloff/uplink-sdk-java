@@ -51,7 +51,13 @@ public class Crypto {
   }
 
 
-  public static String DeriveAssetAddress(String name, String issuer, int supply, String mref, AssetType typ, long timestamp) throws UnsupportedEncodingException, IOException {
+  public static String DeriveAssetAddress(
+      String name,
+      String issuer,
+      int supply,
+      String mref,
+      AssetType typ
+  ) throws UnsupportedEncodingException, IOException {
 
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
@@ -75,7 +81,6 @@ public class Crypto {
     if("Fractional".equals(typ.tag)){
       stream.writeShort(typ.contents);
     }
-    stream.writeLong(timestamp);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
 

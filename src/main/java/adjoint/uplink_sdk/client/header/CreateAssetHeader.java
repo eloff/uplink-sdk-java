@@ -31,7 +31,6 @@ import java.util.logging.Logger;
  */
 public class CreateAssetHeader implements WriteBinary {
   public final String assetName;
-  public final String assetAddr;
   public final Integer supply;
   public final AssetType assetType;
   public final String reference;
@@ -39,9 +38,8 @@ public class CreateAssetHeader implements WriteBinary {
   public final Map<String, String> metadata;
 
 
-  public CreateAssetHeader(String Name, String assetAddr, Integer Supply, AssetType assetType, String reference, String issuer, Map<String, String> meta) {
+  public CreateAssetHeader(String Name, Integer Supply, AssetType assetType, String reference, String issuer, Map<String, String> meta) {
     this.assetName = Name;
-    this.assetAddr = assetAddr;
     this.supply = Supply;
     this.assetType = assetType;
     this.reference = reference;
@@ -52,7 +50,6 @@ public class CreateAssetHeader implements WriteBinary {
 
   public void writeBinary(DataOutputStream out) throws IOException {
     TxTypeEnum.CREATE_ASSET.writeBinary(out);
-    out.write(Base58convert.decode(assetAddr));
     out.writeShort(assetName.length());
     out.writeBytes(assetName);
     out.writeLong(supply);

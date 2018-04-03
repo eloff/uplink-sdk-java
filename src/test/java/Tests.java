@@ -27,7 +27,6 @@ import adjoint.uplink_sdk.client.parameters.wrappers.ContractsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.PeersWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -37,8 +36,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.util.*;
 
@@ -164,21 +161,19 @@ public class Tests {
 
   @Test
   public void TestCreateContract() throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, InterruptedException, InvalidAlgorithmParameterException {
-    String Script = "global int x = 0 ;\n" +
-        "\n" +
-        "transition initial -> set;\n" +
-        "transition set -> terminal;\n" +
-        "\n" +
-        "@set\n" +
-        "end () {\n" +
-        "  terminate(\"Now I die.\");\n" +
-        "}\n" +
-        "\n" +
-        "@initial\n" +
-        "setX (int y) {\n" +
-        "  x = 42;\n" +
-        "  transitionTo(:set);\n" +
-        "}";
+    String Script = String.join("\n",
+        "global int x = 0 ;",
+        "transition initial -> set;",
+        "transition set -> terminal;",
+        "@set",
+        "end () {",
+        "  terminate(\"Now I die.\");",
+        "}",
+        "@initial",
+        "setX (int y) {",
+        "  x = 42;",
+        "  transitionTo(:set);",
+        "}");
 
     SortedMap<String, String> meta = new TreeMap<String, String>();
     meta.put("foo", "bar");
@@ -187,8 +182,9 @@ public class Tests {
 
     PrivateKey privateKey = this.pair.getPrivate();
     PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
 
+    // Create account
+    uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
     Thread.sleep(10000);
     Response contract = uplink.createContract(privateKey, accountAddress, Script);
     contractAddress = contract.tag;
@@ -196,7 +192,7 @@ public class Tests {
   }
 
   @Test
-  public void TestTransferAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, FileNotFoundException, InvalidKeySpecException, InterruptedException, InvalidAlgorithmParameterException {
+  public void TestTransferAsset() throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, IOException, InvalidKeySpecException, InterruptedException, InvalidAlgorithmParameterException {
     int balance = 1;
     SortedMap meta = new TreeMap();
     meta.put("foo", "bar");
@@ -224,54 +220,43 @@ public class Tests {
   }
 
   @Test
-  public void TestCallContract() throws IOException, SignatureException, InvalidKeyException, NoSuchAlgorithmException, InterruptedException, InvalidAlgorithmParameterException, Exception {
-    String Script =
-	"enum testEnum { Foo, Bar };\n" +
-	"transition initial -> end;\n" +
-        "transition end -> terminal;\n" +
-        "@initial\n" +
-        "fn_int(int a) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_float(float b) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_bool(bool x) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_msg(msg c) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_account(account a) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_asset(assetDisc a) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_contract(contract e) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_datetime(datetime e) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_fixed(fixed5 f) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_void(void a) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "fn_enum(enum testEnum a) {\n" +
-        "}\n" +
-        "@initial\n" +
-        "never_called(void a) {\n" +
-        "    transitionTo(:end);\n" +
-        "}\n" +
-        "@end\n" +
-        "end() {\n" +
-        "  if (sender() == deployer()) {\n" +
-        "    terminate(\"This is the end\");\n" +
-        "  };\n" +
-        "}";
+  public void TestCallContract() throws Exception {
+    String Script = String.join("\n",
+        "enum testEnum { Foo, Bar };",
+        "transition initial -> end;",
+        "transition end -> terminal;",
+        "@initial",
+        "fn_int(int a) {}",
+        "@initial",
+        "fn_float(float b) {}",
+        "@initial",
+        "fn_bool(bool x) {}",
+        "@initial",
+        "fn_msg(msg c) {}",
+        "@initial",
+        "fn_account(account a) {}",
+        "@initial",
+        "fn_asset(assetDisc a) {}",
+        "@initial",
+        "fn_contract(contract e) {}",
+        "@initial",
+        "fn_datetime(datetime e) {}",
+        "@initial",
+        "fn_fixed(fixed5 f) {}",
+        "@initial",
+        "fn_void(void a) {}",
+        "@initial",
+        "fn_enum(enum testEnum a) {}",
+        "@initial",
+        "never_called(void a) {",
+        "    transitionTo(:end);",
+        "}",
+        "@end",
+        "end() {",
+        "  if (sender() == deployer()) {",
+        "    terminate(\"This is the end\");",
+        "  };",
+        "}");
 
     SortedMap<String, String> meta = new TreeMap<String, String>();
     meta.put("foo", "bar");
@@ -280,11 +265,13 @@ public class Tests {
 
     PrivateKey privateKey = this.pair.getPrivate();
     PublicKey publicKey = this.pair.getPublic();
-    Response account = uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
 
+    uplink.createAccount(timezone, meta, privateKey, publicKey, fromAddress);
     Thread.sleep(5000);
+
     Response contract = uplink.createContract(privateKey, accountAddress, Script);
     Thread.sleep(5000);
+
     contractAddress = contract.tag;
     List<AbstractMap.SimpleEntry<String, HashMap<String, String>>> args = new ArrayList<>();
 

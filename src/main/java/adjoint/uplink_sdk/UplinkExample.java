@@ -97,21 +97,19 @@ public class UplinkExample {
     Response TransferAsset = uplink.transferAsset(fromAddr, assetAddr, toAddr, balance, privateKey);
 
     // Create a contract
-    String Script = "global int x = 0 ;\n" +
-        "\n" +
-        "transition initial -> set;\n" +
-        "transition set -> terminal;\n" +
-        "\n" +
-        "@set\n" +
-        "end () {\n" +
-        "  terminate(\"Now I die.\");\n" +
-        "}\n" +
-        "\n" +
-        "@initial\n" +
-        "setX (int y) {\n" +
-        "  x = 42;\n" +
-        "  transitionTo(:set);\n" +
-        "}";
+    String Script = String.join("\n",
+        "global int x = 0 ;",
+        "transition initial -> set;",
+        "transition set -> terminal;",
+        "@set",
+        "end () {",
+        "  terminate(\"Now I die.\");",
+        "}",
+        "@initial",
+        "setX (int y) {",
+        "  x = 42;",
+        "  transitionTo(:set);",
+        "}");
 
     Thread.sleep(5000); // Wait for block to be created.
     Response newContract = uplink.createContract(privateKey, AcctAddress, Script);

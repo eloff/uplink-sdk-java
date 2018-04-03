@@ -26,24 +26,15 @@ import java.io.*;
  */
 
 public class CreateContractHeader implements WriteBinary {
+  public final String contract;
 
-  public final String script;
-  public final String owner;
-  public final String address;
-  public final long timestamp;
-
-  public CreateContractHeader(String script, String owner, String address, long timestamp) {
-    this.script = script;
-    this.address = address;
-    this.owner = owner;
-    this.timestamp = timestamp;
+  public CreateContractHeader(String script, String owner, String address) {
+    this.contract = script;
   }
 
   public void writeBinary(DataOutputStream out) throws IOException {
     TxTypeEnum.CREATE_CONTRACT.writeBinary(out);
-    out.write(Base58convert.decode(address));
-    out.writeShort(script.length());
-    out.writeBytes(script);
+    out.writeShort(contract.length());
+    out.writeBytes(contract);
   }
-
 }
