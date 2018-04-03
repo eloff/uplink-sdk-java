@@ -202,6 +202,6 @@ To learn more about the SDK please visit the
 License
 -------
 
-Copyright 2017 Adjoint Inc
+Copyright 2017-2018 Adjoint Inc
 
 Released under Apache 2.0.
