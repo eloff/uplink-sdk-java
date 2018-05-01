@@ -20,6 +20,7 @@ import static adjoint.uplink_sdk.client.Crypto.GenerateKeys;
 import adjoint.uplink_sdk.client.Response;
 import adjoint.uplink_sdk.client.ResponseOkay;
 import adjoint.uplink_sdk.client.UplinkSDK;
+import adjoint.uplink_sdk.client.Version;
 import adjoint.uplink_sdk.client.parameters.wrappers.AccountsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.AssetWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.BlocksWrapper;
@@ -219,6 +220,17 @@ public class Tests {
     assertTrue("Transferring asset should return a valid response", TransferAsset.getClass() == ResponseOkay.class);
   }
 
+  @Test
+  public void TestUplinkVersion() throws Exception {
+    final Properties properties = new Properties();
+    properties.load(this.getClass().getResourceAsStream("project.properties"));
+
+    String sdkVersion = properties.getProperty("version");
+    String uplinkVersion = uplink.getUplinkVersion().version;
+
+    assertTrue("SDK version should match Uplink version", sdkVersion.equals(uplinkVersion));
+  }
+  
   @Test
   public void TestCallContract() throws Exception {
     String Script = String.join("\n",

@@ -21,30 +21,34 @@ import java.io.*;
  * @author Adjoint Inc.
  */
 public enum TxTypeEnum implements WriteBinary {
-  CREATE_CONTRACT(1000, "CreateContract"),
-  SYNC_LOCAL(1001, "SyncLocal"),
-  CALL_CONTRACT(1002, "Call"),
-  CREATE_ASSET(1003, "CreateAsset"),
-  TRANSFER_ASSET(1004, "Transfer"),
-  CIRCULATE_ASSET(1005, "Circulate"),
-  BIND_ASSET(1006, "BindAsset"),
-  REVOKE_ASSET(1007, "RevokeAsset"),
-  CREATE_ACCOUNT(1008, "CreateAccount"),
-  REVOKE_ACCOUNT(1009, "RevokeAccount"),
-  TX_CONTRACT(0, "TxContract"),
-  TX_ASSET(0, "TxAsset"),
-  TX_ACCOUNT(0, "TxAccount");
+  CREATE_CONTRACT(0, 0, "CreateContract"),
+  SYNC_LOCAL(0, 1, "SyncLocal"),
+  CALL_CONTRACT(0, 2, "Call"),
+  CREATE_ASSET(1, 0, "CreateAsset"),
+  TRANSFER_ASSET(1, 1, "Transfer"),
+  CIRCULATE_ASSET(1, 2, "Circulate"),
+  BIND_ASSET(1, 3, "BindAsset"),
+  REVOKE_ASSET(1, 4, "RevokeAsset"),
+  CREATE_ACCOUNT(2, 0, "CreateAccount"),
+  REVOKE_ACCOUNT(2, 1, "RevokeAccount"),
+  // We only care about the names of TxContract, TxAsset and TxAccount
+  TX_CONTRACT(0, -1, "TxContract"),
+  TX_ASSET(1, -1, "TxAsset"),
+  TX_ACCOUNT(2, -1, "TxAccount");
 
-  public final Integer value;
+  public final Integer fstFlag;
+  public final Integer sndFlag;
   public final String name;
 
-  TxTypeEnum(Integer value, String name) {
-    this.value = value;
+  TxTypeEnum(Integer fstFlag, Integer sndFlag, String name) {
+    this.fstFlag = fstFlag;
+    this.sndFlag = sndFlag;
     this.name = name;
   }
 
   public void writeBinary(DataOutputStream out) throws IOException {
-    out.writeShort(value);
+    out.writeShort(fstFlag);
+    out.writeShort(sndFlag);
   }
 
 }

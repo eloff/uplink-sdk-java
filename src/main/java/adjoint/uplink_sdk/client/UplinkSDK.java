@@ -37,8 +37,6 @@ import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
 import adjoint.uplink_sdk.client.header.CreateContractHeader;
 import adjoint.uplink_sdk.client.header.TransferHeader;
 import adjoint.uplink_sdk.client.header.CreateAccountHeader;
-import adjoint.uplink_sdk.client.header.SyncLocalHeader;
-import adjoint.uplink_sdk.client.header.BindAssetHeader;
 import adjoint.uplink_sdk.client.header.CreateAssetHeader;
 
 import adjoint.uplink_sdk.client.header.Actions;
@@ -60,6 +58,8 @@ import adjoint.uplink_sdk.client.parameters.wrappers.RevokeAccount;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransferAsset;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxTypeHeader;
 
+import adjoint.uplink_sdk.client.Version;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -72,7 +72,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SignatureException;
 import java.security.spec.InvalidKeySpecException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -428,7 +427,6 @@ public class UplinkSDK {
       InvalidKeyException,
       SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CREATE_CONTRACT.value;
 
     String contractAddress = DeriveContractAddress(script);
     CreateContractHeader aHead =
@@ -483,7 +481,6 @@ public class UplinkSDK {
    */
   public Response transferAsset(String fromAddr, String assetAddr, String toAddr, Integer balance, PrivateKey privateKey) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException, FileNotFoundException, InvalidKeySpecException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.TRANSFER_ASSET.value;
 
     // b58 decode
     byte[] byteAssetAddr = Base58convert.decode(assetAddr);
@@ -492,7 +489,8 @@ public class UplinkSDK {
     // Prepare Bytes to sign [Txtype, asset_addr, to_addr, balance]
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
+    stream.writeShort(TxTypeEnum.TRANSFER_ASSET.fstFlag);
+    stream.writeShort(TxTypeEnum.TRANSFER_ASSET.sndFlag);
     stream.write(byteAssetAddr);
     stream.write(byteToAddr);
     stream.writeLong(balance);
@@ -533,7 +531,6 @@ public class UplinkSDK {
    */
   public Response revokeAccount(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.REVOKE_ACCOUNT.value;
 
     // b58 decode address
     byte[] byteAcctAddress = Base58convert.decode(acctAddress);
@@ -541,7 +538,8 @@ public class UplinkSDK {
     // Prepare Bytes to sign
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeByte(TxTypeEnum.REVOKE_ACCOUNT.value);
+    stream.writeByte(TxTypeEnum.REVOKE_ACCOUNT.fstFlag);
+    stream.writeByte(TxTypeEnum.REVOKE_ACCOUNT.sndFlag);
     stream.write(byteAcctAddress);
     stream.flush();
     byte[] convertedBytes = data.toByteArray();
@@ -717,14 +715,15 @@ public class UplinkSDK {
    */
   public Response circulateAsset(PrivateKey privateKey, String fromAddr, String assetAddress, int amount) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
     String url = this.url + "/";
-    Integer TxType = TxTypeEnum.CIRCULATE_ASSET.value;
+
     // b58 decode address
     byte[] byteAssetAddress = Base58convert.decode(assetAddress);
 
     // Prepare Bytes to sign
     final ByteArrayOutputStream data = new ByteArrayOutputStream();
     final DataOutputStream stream = new DataOutputStream(data);
-    stream.writeShort(TxType);
+    stream.writeShort(TxTypeEnum.CIRCULATE_ASSET.fstFlag);
+    stream.writeShort(TxTypeEnum.CIRCULATE_ASSET.sndFlag);
     stream.write(byteAssetAddress);
     stream.writeLong(amount);
     stream.flush();
@@ -784,5 +783,12 @@ public class UplinkSDK {
       }
     }
     return sb.toString().toUpperCase();
+  }
+
+  public Version getUplinkVersion() {
+    String url = this.url + "/version";
+    String params = "";
+    String output = request.Call(url, params);
+    return new Gson().fromJson(output, Version.class);
   }
 }
