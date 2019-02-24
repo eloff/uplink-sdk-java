@@ -37,15 +37,6 @@ public class AssetWrap extends Response {
 
   class AssetContents {
     public final String address;
-    public final Asset asset;
-
-    AssetContents(String address, Asset asset) {
-      this.address = address;
-      this.asset = asset;
-    }
-  }
-
-  class Asset {
     public final Integer issuedOn;
     public final String name;
     public final String reference;
@@ -53,14 +44,18 @@ public class AssetWrap extends Response {
     public final String issuer;
     public final AssetType assetType;
     public final Map<String, Object> holdings = new HashMap<String, Object>();
+    public final Map<String, String> metadata;
 
-    Asset(Integer issuedOn, String name, String reference, Integer supply, String issuer, AssetType assetType) {
+    
+    AssetContents(String address, Integer issuedOn, String name, String reference, Integer supply, String issuer, AssetType assetType, Map<String, String> metadata) {
+      this.address = address;
       this.issuedOn = issuedOn;
       this.name = name;
       this.reference = reference;
       this.supply = supply;
       this.issuer = issuer;
       this.assetType = assetType;
+      this.metadata = metadata;
     }
   }
 
