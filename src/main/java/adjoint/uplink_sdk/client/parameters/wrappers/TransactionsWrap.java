@@ -33,64 +33,14 @@ public class TransactionsWrap extends Response {
 }
 
 class TxContents{
-  private TxHeader header;
-  private String fromPub;
-  private String from;
-  private String signature;
+  public final TxHeader header;
+  public final String signature;
+  public final String origin;
 
-  /**
-   * @return the header
-   */
-  public TxHeader getHeader() {
-    return header;
-  }
-
-  /**
-   * @param header the header to set
-   */
-  public void setHeader(TxHeader header) {
+  
+  public TxContents(TxHeader header, String signature, String origin) {
     this.header = header;
-  }
-
-  /**
-   * @return the fromPub
-   */
-  public String getFromPub() {
-    return fromPub;
-  }
-
-  /**
-   * @param fromPub the fromPub to set
-   */
-  public void setFromPub(String fromPub) {
-    this.fromPub = fromPub;
-  }
-
-  /**
-   * @return the from
-   */
-  public String getFrom() {
-    return from;
-  }
-
-  /**
-   * @param from the from to set
-   */
-  public void setFrom(String from) {
-    this.from = from;
-  }
-
-  /**
-   * @return the signature
-   */
-  public String getSignature() {
-    return signature;
-  }
-
-  /**
-   * @param signature the signature to set
-   */
-  public void setSignature(String signature) {
     this.signature = signature;
+    this.origin = origin;
   }
 }
