@@ -15,6 +15,8 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
+import java.util.Map;
+
 /**
  * @author Adjoint Inc.
  */
@@ -30,14 +32,16 @@ public class CreateAsset extends TxTypeHeader {
     public final String assetName;
     public final AssetType assetType;
     public final String reference;
-    public final Long supply;
+    public final long supply;
+    public final Map<String, String> metadata;
 
 
-    public CreateAssetBody(String assetName, AssetType assetType, String reference, Long supply) {
+    public CreateAssetBody(String assetName, AssetType assetType, String reference, long supply, Map<String, String> metadata) {
       this.assetName = assetName;
       this.assetType = assetType;
       this.reference = reference;
       this.supply = supply;
+      this.metadata = metadata;
     }
   }
 
