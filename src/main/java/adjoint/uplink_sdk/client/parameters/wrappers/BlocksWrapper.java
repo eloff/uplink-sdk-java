@@ -35,16 +35,27 @@ public class BlocksWrapper extends Response{
     public final BlocksHeader header;
     public final List<Transactions> transactions;
     public final Integer index;
-    public final String signature;
+    public final List<BlockSignature> signatures;
     public final String addr;
 
 
-    Contents(BlocksHeader header, List<Transactions> transactions, Integer index, String signature, String addr) {
+    Contents(BlocksHeader header, List<Transactions> transactions, Integer index, List<BlockSignature> signatures) {
       this.header = header;
       this.transactions = transactions;
       this.index = index;
+      this.signatures = signatures;
+      this.addr = null;
+    }
+  }
+
+  class BlockSignature {
+    public final String signature;
+    public final String signerAddr;
+
+    
+    BlockSignature(String signature, String signerAddr) {
       this.signature = signature;
-      this.addr = addr;
+      this.signerAddr = signerAddr;
     }
   }
 
