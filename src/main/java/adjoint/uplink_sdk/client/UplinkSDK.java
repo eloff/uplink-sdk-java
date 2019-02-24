@@ -353,7 +353,6 @@ public class UplinkSDK {
   /**
    * Create an asset.
    * @param privateKey Private key of account creating asset
-   * @param publicKey Public key of account creating asset
    * @param fromAddr Address of Account creating asset
    * @param name Name of new asset
    * @param supply Supply of new asset
@@ -364,7 +363,7 @@ public class UplinkSDK {
    * @return new asset address
    * @url /
    */
-  public Response createAsset(PrivateKey privateKey, PublicKey publicKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer, Map<String, String> meta) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
+  public Response createAsset(PrivateKey privateKey, String fromAddr, String name, int supply, String assetType, Integer precision, String reference, String issuer, Map<String, String> meta) throws NoSuchAlgorithmException, InvalidKeyException, SignatureException, UnsupportedEncodingException, IOException {
     String url = this.url + "/";
     AssetType aType = new AssetType(assetType, precision);
     String assetAddr = DeriveAssetAddress(name, issuer, supply, reference, aType);
