@@ -21,9 +21,9 @@ class AccountContents {
     public final String publicKey;
     public final String address;
     public final String timezone;
-    public final Map<String, Object> metadata;
+    public final Map<String, String> metadata;
 
-    AccountContents(String publicKey, String address, String timezone, Map<String, Object> metadata) {
+    AccountContents(String publicKey, String address, String timezone, Map<String, String> metadata) {
       this.publicKey = publicKey;
       this.address = address;
       this.timezone = timezone;
