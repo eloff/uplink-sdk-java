@@ -15,17 +15,23 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
-import adjoint.uplink_sdk.client.Response;
-import adjoint.uplink_sdk.client.parameters.wrappers.AccountContents;
+import java.util.Map;
 
-/**
- * @author Adjoint Inc.
- */
-public class AccountWrap extends Response {
-  public final AccountContents contents;
+class AccountContents {
+    public final String publicKey;
+    public final String address;
+    public final String timezone;
+    public final Map<String, Object> metadata;
 
-  public AccountWrap(String tag, AccountContents contents) {
-    super(tag, "RPCResp");
-    this.contents = contents;
+    AccountContents(String publicKey, String address, String timezone, Map<String, Object> metadata) {
+      this.publicKey = publicKey;
+      this.address = address;
+      this.timezone = timezone;
+      this.metadata = metadata;
+    }
+
+    @Override
+    public String toString() {
+	  return publicKey + address + timezone;
+	}
   }
-}
