@@ -15,10 +15,10 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
+import adjoint.uplink_sdk.client.parameters.wrappers.ContractContents;
 import adjoint.uplink_sdk.client.Response;
 
 import java.util.List;
-import java.util.Map;
 
 
 /**
@@ -30,30 +30,5 @@ public class ContractsWrap extends Response {
   public ContractsWrap(String tag, List<ContractContents> contents) {
     super(tag, "RPCResp");
     this.contents = contents;
-  }
-
-
-  class ContractContents {
-    public final Contract contract;
-    public final String address;
-
-    ContractContents(Contract contract, String address) {
-      this.contract = contract;
-      this.address = address;
-    }
-  }
-
-  class Contract {
-    public final int timestamp;
-    public final String script;
-    public final Map<String, Object> storage;
-    public final List<String> methods;
-
-    Contract(int timestamp, String script, Map<String, Object> storage, List<String> methods) {
-      this.timestamp = timestamp;
-      this.script = script;
-      this.storage = storage;
-      this.methods = methods;
-    }
   }
 }
