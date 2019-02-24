@@ -37,7 +37,6 @@ class TxContents{
   private String fromPub;
   private String from;
   private String signature;
-  private Integer timestamp;
 
   /**
    * @return the header
@@ -93,19 +92,5 @@ class TxContents{
    */
   public void setSignature(String signature) {
     this.signature = signature;
-  }
-
-  /**
-   * @return the timestamp
-   */
-  public Integer getTimestamp() {
-    return timestamp;
-  }
-
-  /**
-   * @param timestamp the timestamp to set
-   */
-  public void setTimestamp(Integer timestamp) {
-    this.timestamp = timestamp;
   }
 }
