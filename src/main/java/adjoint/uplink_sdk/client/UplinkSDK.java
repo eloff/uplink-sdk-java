@@ -33,6 +33,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.TxContract;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolWrap;
+import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolSize;
 
 import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
 import adjoint.uplink_sdk.client.header.CreateContractHeader;
@@ -257,6 +258,25 @@ public class UplinkSDK {
 
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
+        .registerTypeAdapterFactory(adapterResp)
+        .create();
+
+    return gson.fromJson(output, Response.class);
+  }
+
+  /**
+   * Returns the number of unconfirmed transactions
+   * @return the number of unconfirmed transactions on current node
+   * @url /transactions/pool/size
+   */
+  public Response getMemPoolSize() {
+    String url = this.url + "/transactions/pool/size";
+    String params = "";
+    String output = request.Call(url, params);
+
+    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(MemPoolSize.class, ResponseEnum.RPC_RESP.name);
+
+    Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapterResp)
         .create();
 
