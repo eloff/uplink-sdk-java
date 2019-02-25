@@ -30,6 +30,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolSize;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolsWrap;
+import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolsSizes;
 
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
@@ -104,6 +105,13 @@ public class Tests {
     Response pools = uplink.getMemPools();
     assertEquals(MemPoolsWrap.class, pools.getClass());
     assertEquals(((MemPoolsWrap)pools).contents.size(), 1);
+  }
+
+  @Test
+  public void TestGetMemPoolsSizes() {
+    Response pools = uplink.getMemPoolsSizes();
+    assertEquals(MemPoolsSizes.class, pools.getClass());
+    assertEquals(((MemPoolsSizes)pools).contents.size(), 1);
   }
 
   @Test
