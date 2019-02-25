@@ -23,11 +23,21 @@ import java.util.List;
  *
  * @author Adjoint Inc.
  */
-public class TransactionsWrap extends Response {
-  public final List<TxContents> contents;
-  
-  public TransactionsWrap(String tag, List<TxContents> contents){
-    super(tag, "RPCResp");
-    this.contents = contents;
-  }
+public class MemPoolWrap extends Response {
+	public final MemPoolContents contents;
+
+	public MemPoolWrap(String tag, MemPoolContents contents){
+		super(tag, "RPCResp");
+		this.contents = contents;
+	}
+
+	class MemPoolContents {
+		public final List<TxContents> transactions;
+		public final int size;
+
+		public MemPoolContents(List<TxContents> transactions, int size) {
+			this.transactions = transactions;
+			this.size = size;
+		}
+	}
 }

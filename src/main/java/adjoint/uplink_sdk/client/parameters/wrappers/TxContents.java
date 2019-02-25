@@ -15,19 +15,19 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
-import adjoint.uplink_sdk.client.Response;
-import adjoint.uplink_sdk.client.parameters.wrappers.TxContents;
-import java.util.List;
-
 /**
  *
  * @author Adjoint Inc.
  */
-public class TransactionsWrap extends Response {
-  public final List<TxContents> contents;
+class TxContents{
+  public final TxHeader header;
+  public final String signature;
+  public final String origin;
+
   
-  public TransactionsWrap(String tag, List<TxContents> contents){
-    super(tag, "RPCResp");
-    this.contents = contents;
+  public TxContents(TxHeader header, String signature, String origin) {
+    this.header = header;
+    this.signature = signature;
+    this.origin = origin;
   }
 }

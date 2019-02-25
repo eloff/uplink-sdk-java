@@ -32,6 +32,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.TxAsset;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxContract;
 import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
+import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolWrap;
 
 import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
 import adjoint.uplink_sdk.client.header.CreateContractHeader;
@@ -221,6 +222,32 @@ public class UplinkSDK {
     String output = request.Call(url, params);
 
     RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(TransactionsWrap.class, ResponseEnum.RPC_RESP.name);
+
+    RuntimeTypeAdapterFactory<TxHeader> adapter = RuntimeTypeAdapterFactory
+        .of(TxHeader.class, GeneralEnum.TAG.name)
+        .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.name)
+        .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.name)
+        .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.name);
+
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(adapter)
+        .registerTypeAdapterFactory(adapterResp)
+        .create();
+
+    return gson.fromJson(output, Response.class);
+  }
+
+  /**
+   * Returns list of unconfirmed transactions
+   * @return list of unconfirmed transactions on current node
+   * @url /transactions/pool
+   */
+  public Response getMemPool() {
+    String url = this.url + "/transactions/pool";
+    String params = "";
+    String output = request.Call(url, params);
+
+    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(MemPoolWrap.class, ResponseEnum.RPC_RESP.name);
 
     RuntimeTypeAdapterFactory<TxHeader> adapter = RuntimeTypeAdapterFactory
         .of(TxHeader.class, GeneralEnum.TAG.name)
