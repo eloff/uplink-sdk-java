@@ -18,10 +18,10 @@ package adjoint.uplink_sdk.client.header;
 /**
  * @author Adjoint Inc.
  */
-public class RevokeAccountHeader {
+public class RevokeAssetHeader {
   public final String address;
 
-  public RevokeAccountHeader(String acctAddress) {
-    this.address = acctAddress;
+  public RevokeAssetHeader(String assetAddress) {
+    this.address = assetAddress;
   }
 }

@@ -38,6 +38,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolsSizes;
 
 import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
+import adjoint.uplink_sdk.client.header.RevokeAssetHeader;
 import adjoint.uplink_sdk.client.header.CreateContractHeader;
 import adjoint.uplink_sdk.client.header.TransferHeader;
 import adjoint.uplink_sdk.client.header.CreateAccountHeader;
@@ -607,6 +608,54 @@ public class UplinkSDK {
     String output = request.Call(url, params);
 
     RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_TX_OK.name);
+
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(adapter)
+        .create();
+
+    return gson.fromJson(output, Response.class);
+  }
+
+  /**
+   * Revoke Asset access to ledger. Can only be initiated by the same account as the initial issuer of the asset
+   * @param privateKey private key of account revoking asset
+   * @param fromAddr address of account revoking asset
+   * @param acctAddress address of the asset being revoked
+   * @url /
+   */
+  public Response revokeAsset(PrivateKey privateKey, String fromAddr, String acctAddress) throws IOException, NoSuchAlgorithmException, InvalidKeyException, SignatureException {
+    String url = this.url + "/";
+
+    // b58 decode address
+    byte[] byteAcctAddress = Base58convert.decode(acctAddress);
+
+    // Prepare Bytes to sign
+    final ByteArrayOutputStream data = new ByteArrayOutputStream();
+    final DataOutputStream stream = new DataOutputStream(data);
+    stream.writeByte(TxTypeEnum.REVOKE_ASSET.fstFlag);
+    stream.writeByte(TxTypeEnum.REVOKE_ASSET.sndFlag);
+    stream.write(byteAcctAddress);
+    stream.flush();
+    byte[] convertedBytes = data.toByteArray();
+
+    // Sign Bytes
+    byte[] signedBytes = SignBytes(convertedBytes, privateKey);
+    String signature = Sign(signedBytes);
+    String toAddr = null;
+    // Serialize parameters
+    RevokeAssetHeader aHead = new RevokeAssetHeader(acctAddress);
+    Actions actions = new Actions(TxTypeEnum.REVOKE_ASSET.name, aHead);
+    Type type = new Type(TxTypeEnum.TX_ASSET.name, actions);
+    Transaction trans = new Transaction(signature, fromAddr, type);
+    TransactionParams tx = new TransactionParams(trans);
+
+    // Make it a json string
+    String params = gson.toJson(tx, TransactionParams.class);
+
+    // Call the Server
+    String output = request.Call(url, params);
+
+    RuntimeTypeAdapterFactory<Response> adapter = RTAFgenerator(ResponseOkay.class, ResponseEnum.RPC_RESP_OK.name);
 
     Gson gson = new GsonBuilder()
         .registerTypeAdapterFactory(adapter)
