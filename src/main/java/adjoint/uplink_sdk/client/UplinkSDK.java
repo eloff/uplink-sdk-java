@@ -34,6 +34,7 @@ import adjoint.uplink_sdk.client.parameters.wrappers.TxHeader;
 import adjoint.uplink_sdk.client.parameters.wrappers.TransactionsWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolWrap;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolSize;
+import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolsWrap;
 
 import adjoint.uplink_sdk.client.header.RevokeAccountHeader;
 import adjoint.uplink_sdk.client.header.CreateContractHeader;
@@ -277,6 +278,32 @@ public class UplinkSDK {
     RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(MemPoolSize.class, ResponseEnum.RPC_RESP.name);
 
     Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(adapterResp)
+        .create();
+
+    return gson.fromJson(output, Response.class);
+  }
+
+  /**
+   * Returns unconfirmed transactions of all nodes in the network.
+   * @return map of unconfirmed transactions by node address
+   * @url /transactions/pool/all
+   */
+  public Response getMemPools() {
+    String url = this.url + "/transactions/pool/all";
+    String params = "";
+    String output = request.Call(url, params);
+
+    RuntimeTypeAdapterFactory<Response> adapterResp = RTAFgenerator(MemPoolsWrap.class, ResponseEnum.RPC_RESP.name);
+
+    RuntimeTypeAdapterFactory<TxHeader> adapter = RuntimeTypeAdapterFactory
+        .of(TxHeader.class, GeneralEnum.TAG.name)
+        .registerSubtype(TxAsset.class, TxTypeEnum.TX_ASSET.name)
+        .registerSubtype(TxAccount.class, TxTypeEnum.TX_ACCOUNT.name)
+        .registerSubtype(TxContract.class, TxTypeEnum.TX_CONTRACT.name);
+
+    Gson gson = new GsonBuilder()
+        .registerTypeAdapterFactory(adapter)
         .registerTypeAdapterFactory(adapterResp)
         .create();
 

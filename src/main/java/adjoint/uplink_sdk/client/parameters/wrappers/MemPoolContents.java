@@ -15,18 +15,20 @@
  */
 package adjoint.uplink_sdk.client.parameters.wrappers;
 
-import adjoint.uplink_sdk.client.Response;
-import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolContents;
+import adjoint.uplink_sdk.client.parameters.wrappers.TxContents;
+
+import java.util.List;
 
 /**
  *
  * @author Adjoint Inc.
  */
-public class MemPoolWrap extends Response {
-	public final MemPoolContents contents;
+class MemPoolContents {
+	public final List<TxContents> transactions;
+	public final int size;
 
-	public MemPoolWrap(String tag, MemPoolContents contents){
-		super(tag, "RPCResp");
-		this.contents = contents;
+	public MemPoolContents(List<TxContents> transactions, int size) {
+		this.transactions = transactions;
+		this.size = size;
 	}
 }

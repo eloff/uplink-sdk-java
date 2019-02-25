@@ -17,15 +17,16 @@ package adjoint.uplink_sdk.client.parameters.wrappers;
 
 import adjoint.uplink_sdk.client.Response;
 import adjoint.uplink_sdk.client.parameters.wrappers.MemPoolContents;
+import java.util.Map;
 
 /**
  *
  * @author Adjoint Inc.
  */
-public class MemPoolWrap extends Response {
-	public final MemPoolContents contents;
+public class MemPoolsWrap extends Response {
+	public final Map<String, Map<String, MemPoolContents>> contents;
 
-	public MemPoolWrap(String tag, MemPoolContents contents){
+	public MemPoolsWrap(String tag, Map<String, Map<String, MemPoolContents>> contents){
 		super(tag, "RPCResp");
 		this.contents = contents;
 	}
